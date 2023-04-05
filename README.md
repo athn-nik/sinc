@@ -19,7 +19,7 @@
     ·
     <a href="https://imagine.enpc.fr/~varolg"><strong>G&#252;l Varol</strong></a>
   </p>
-  <h2 align="center">3DV 2022</h2>
+  <h2 align="center">arXiv 2023</h2>
   <div align="center">
   </div>
 </p>
