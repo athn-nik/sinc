@@ -107,7 +107,7 @@ Download the data from [AMASS website](https://amass.is.tue.mpg.de). Then, run t
 python scripts/process_amass.py --input-path /path/to/data --output-path path/of/choice/default_is_/babel/babel-smplh-30fps-male --use-betas --gender male
 ```
 
-Download the data from [TEACH website](https://teach.is.tue.mpg.de), after signing in. The data TEACH was trained was a processed version of BABEL. Hence, we provide them directly to your via our website, where you will also find more relevant details. 
+Download the data from [SINC website](https://sinc.is.tue.mpg.de), after signing in. The data SINC was trained was a processed version of BABEL. Hence, we provide them directly to your via our website, where you will also find more relevant details. 
 Finally, download the male SMPLH male body model from the [SMPLX website](https://smpl-x.is.tue.mpg.de/). Specifically the AMASS version of the SMPLH model. Then, follow the instructions [here](https://github.com/vchoutas/smplx/blob/main/tools/README.md#smpl-h-version-used-in-amass) to extract the smplh model in pickle format.
 
 The run this script and change your paths accordingly inside it extract the different babel splits from amass:
@@ -140,6 +140,12 @@ Then you should softlink inside this repo. To softlink your data, do:
 
 `ln -s /path/to/data`
 
+You can do the same for your experiments:
+
+`ln -s /path/to/logs experiments`
+
+Then you can use this directory for your experiments.
+
 ## Training
 To start training after activating your environment. Do:
 
@@ -158,7 +164,7 @@ Here are some commands if you want to sample from the validaiton set and evaluat
 in the paper:
 
 ```shell 
-python sample_seq.py folder=/path/to/experiment align=full slerp_ws=8
+python sample.py folder=/path/to/experiment
 ```
 
 In general the folder is: `folder_our/<project>/<dataname_config>/<experimet>/<run_id>`
@@ -166,22 +172,15 @@ This folder should contain a `checkpoints` directory with a `last.ckpt` file ins
 will be pulled and the relevant checkpoint. This folder is created during training in the output directory and is provided in our website
 for the experiments in the paper.
 
-- `align=trans`: chooses if translation will be aligned or if the global orientation also(`align=full`)
-- `slerp_ws`: decides on whether slerp is done or not(`=null`) and what is the size of its window.
+- `naive=trans`: chooses if translation will be aligned or if the global orientation also(`align=full`)
 
 Then for the evaluation you should do:
 
 ```shell
-python eval.py folder=/path/to/experiment align=true slerp=true
+python eval.py folder=/path/to/experiment
 ```
 
 the two extra parameters decide the samples on which the evaluation will be performed.
-
-### Transition distance
-
-- Without alignment column: ```python compute_td.py folder=/path/to/experiment align_full_bodies=false align_only_trans=true```
-
-- With alignment column: ```python compute_td.py folder=/path/to/experiment align_full_bodies=true align_only_trans=false```
 
 [TODO]: More on this coming soon.
 
@@ -209,8 +208,8 @@ Many part of this code were based on the official implementation of [TEMOS](http
 - SMPL models and layer is from [SMPL-X model](https://github.com/vchoutas/smplx).
 ## Contact
 
-This code repository was implemented mainly by [Nikos Athanasiou](https://is.mpg.de/~nathanasiou) with the help of [Mathis Petrovich](https://mathis.petrovich.fr/).
+This code repository was implemented by [Nikos Athanasiou](https://is.mpg.de/~nathanasiou) and [Mathis Petrovich](https://mathis.petrovich.fr/).
 
-Give a ⭐  if you like.
+Give a ⭐ if you like.
 
 For commercial licensing (and all related questions for business applications), please contact ps-licensing@tue.mpg.de.
