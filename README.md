@@ -45,10 +45,9 @@ This implementation:
   - For SINC method
   - For the baselines 
   - For the ablations done in the paper
-  
-## Updates
 
-
+<details>
+  <summary>Environment & Basic Setup</summary>
 ## Getting Started
 TEACH has been implemented and tested on Ubuntu 20.04 with python >= 3.9.
 
@@ -72,6 +71,7 @@ Install the requirements using `virtualenv` :
 source scripts/install.sh
 ```
 You can do something equivalent with `conda` as well.
+</details>
 
 ## Running the Demo
 
@@ -98,8 +98,9 @@ Then, running the demo is as simple as:
 python interact_teach.py folder=/path/to/experiment output=/path/to/yourfname texts='[text prompt1, text prompt2, text prompt3, <more prompts comma divided>]' durs='[dur1, dur2, dur3, ...]'
 
 ```
-
-## Data
+<details>
+  <summary>Data & Training</summary>
+## Data & Training
 
 Download the data from [AMASS website](https://amass.is.tue.mpg.de). Then, run this command to extract the amass sequences that are annotated in babel:
 
@@ -158,39 +159,14 @@ your output stored, which data you want to choose if you want to do a small
 experiment on a subset of the data etc.
 [TODO]: More on this coming soon.
 
-### Sampling & Evaluation
-
-Here are some commands if you want to sample from the validaiton set and evaluate on the metrics reported
-in the paper:
-
-```shell 
-python sample.py folder=/path/to/experiment
-```
-
-In general the folder is: `folder_our/<project>/<dataname_config>/<experimet>/<run_id>`
-This folder should contain a `checkpoints` directory with a `last.ckpt` file inside and a `.hydra` directory from which the configuration
-will be pulled and the relevant checkpoint. This folder is created during training in the output directory and is provided in our website
-for the experiments in the paper.
-
-- `naive=trans`: chooses if translation will be aligned or if the global orientation also(`align=full`)
-
-Then for the evaluation you should do:
-
-```shell
-python eval.py folder=/path/to/experiment
-```
-
-the two extra parameters decide the samples on which the evaluation will be performed.
-
-[TODO]: More on this coming soon.
-
+<details>
 ## Citation
 
 ```bibtex
 @inproceedings{SINC:ICCV:2022,
-  title={TEACH: Temporal Action Compositions for 3D Humans},
+  title={SINC: Spatial Composition of 3D Human Motions for Simultaneous Action Generation},
   author={Athanasiou, Nikos and Petrovich, Mathis and Black, Michael J. and Varol, G\"{u}l },
-  booktitle = {International Conference on 3D Vision (ICVCV)},
+  booktitle = {arXiv},
   month = {September},
   year = {2023}
 }
@@ -199,13 +175,9 @@ the two extra parameters decide the samples on which the evaluation will be perf
 ## License
 This code is available for **non-commercial scientific research purposes** as defined in the [LICENSE file](LICENSE). By downloading and using this code you agree to the terms in the [LICENSE](LICENSE). Third-party datasets and software are subject to their respective licenses.
 
-## Acknowledgments
-We thank [Benjamin Pellkofer](https://is.mpg.de/person/bpellkofer) for his IT support.
-
 ## References
-Many part of this code were based on the official implementation of [TEMOS](https://github.com/Mathux/TEMOS). Here are some great resources we benefit:
+Many part of this code were based on the official implementation of [TEMOS](https://github.com/Mathux/TEMOS).
 
-- SMPL models and layer is from [SMPL-X model](https://github.com/vchoutas/smplx).
 ## Contact
 
 This code repository was implemented by [Nikos Athanasiou](https://is.mpg.de/~nathanasiou) and [Mathis Petrovich](https://mathis.petrovich.fr/).
