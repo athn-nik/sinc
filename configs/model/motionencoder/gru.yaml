@@ -1,7 +1,0 @@
-name: gru_encoder
-_target_: sinc.model.motionencoder.GRUEncoder
-
-latent_dim: ${model.latent_dim}
-vae: ${model.vae}
-
-num_layers: ${model.num_layers}

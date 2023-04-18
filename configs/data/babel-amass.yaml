@@ -2,7 +2,7 @@ dataname: babel-amass
 _target_: sinc.data.babel.BABELDataModule
 
 # Paths
-dtype: 'spatial_pairs' # 'seg', 'seq', 'pairs', 'pairs_only', 'separate_pairs', ''
+dtype: 'seg+seq+spatial_pairs' # 'seg', 'seq', 'pairs', 'pairs_only', 'separate_pairs', ''
 datapath: ${path.data}/babel/babel-smplh-30fps-male
 gpt_path: ${path.deps}/gpt/gpt3-labels-list.json
 
