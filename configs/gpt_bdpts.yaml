@@ -1,0 +1,16 @@
+hydra:
+  run:
+    dir: /is/cluster/work/nathanasiou/experiments/gpt-analysis/${run_id}
+  job:
+    # chdir: true
+    env_set:
+      OPENAI_API_KEY: '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' 
+      # MP #'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'
+      # NA # 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
+      # NA # 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
+logger_level: INFO
+run_id: ${generate_id:}
+crawl_data: true
+process: false
+ntokeep: 100
+gpt_model: davinci
