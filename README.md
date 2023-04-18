@@ -45,11 +45,10 @@ This implementation:
   - For SINC method
   - For the baselines 
   - For the ablations done in the paper
-
+## Environment & Basic Setup
 <details>
-  <summary>Environment & Basic Setup</summary>
-## Getting Started
-TEACH has been implemented and tested on Ubuntu 20.04 with python >= 3.9.
+  <summary>Details</summary>
+SINC has been implemented and tested on Ubuntu 20.04 with python >= 3.10.
 
 Clone the repo:
 ```bash
@@ -75,8 +74,8 @@ You can do something equivalent with `conda` as well.
 
 ## Running the Demo
 
-We have prepared a nice demo code to run TEACH on arbitrary videos. 
-First, you need download the required data(i.e our trained model from our [website](https://teach.is.tue.mpg.de)). 
+We have prepared a nice demo code to run SINC on arbitrary videos. 
+First, you need download the required data(i.e our trained model from our [website](https://sinc.is.tue.mpg.de)). 
 The `path/to/experiment` directory should look like:
 
 ```
@@ -95,12 +94,16 @@ Then, running the demo is as simple as:
 
 ```bash
 
-python interact_teach.py folder=/path/to/experiment output=/path/to/yourfname texts='[text prompt1, text prompt2, text prompt3, <more prompts comma divided>]' durs='[dur1, dur2, dur3, ...]'
+python interact_sinc.py folder=/path/to/experiment output=/path/to/yourfname texts='[text prompt1, text prompt2, text prompt3, <more prompts comma divided>]' durs='[dur1, dur2, dur3, ...]'
 
 ```
-<details>
-  <summary>Data & Training</summary>
 ## Data & Training
+
+<details>
+  <summary>Details</summary>
+
+
+<div align="center"><h3>Data Setup</h3></center></div>
 
 Download the data from [AMASS website](https://amass.is.tue.mpg.de). Then, run this command to extract the amass sequences that are annotated in babel:
 
@@ -147,7 +150,8 @@ You can do the same for your experiments:
 
 Then you can use this directory for your experiments.
 
-## Training
+<div align="center"><h3>Training</h3></center></div>
+
 To start training after activating your environment. Do:
 
 ```shell
@@ -158,8 +162,8 @@ Explore `configs/train.yaml` to change some basic things like where you want
 your output stored, which data you want to choose if you want to do a small
 experiment on a subset of the data etc.
 [TODO]: More on this coming soon.
+</details>
 
-<details>
 ## Citation
 
 ```bibtex
@@ -171,7 +175,6 @@ experiment on a subset of the data etc.
   year = {2023}
 }
 ```
-
 ## License
 This code is available for **non-commercial scientific research purposes** as defined in the [LICENSE file](LICENSE). By downloading and using this code you agree to the terms in the [LICENSE](LICENSE). Third-party datasets and software are subject to their respective licenses.
 
