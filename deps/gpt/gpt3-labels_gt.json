@@ -1,0 +1,799 @@
+{
+  "walk right and left": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "lift right arm in the air": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "straight up": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "shake buttocks": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "perform action on item": [
+    0,
+    0,
+    1,
+    1,
+    5,
+    5
+  ],
+  "rotate shoulders": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "touch low leg": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "shake leg": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "rotate arms inward": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "slide feet backwards": [
+    0,
+    0,
+    1,
+    1,
+    5,
+    5
+  ],
+  "karate pose kneel": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "hands circle in front": [
+    1,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "stumble to the side": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "place left hand on chest": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "move arms close together": [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0
+  ],
+  "juggle balls": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "bend left arm": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "rub back": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "walk downstairs": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "twist to the right": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "pull chair forward": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "hold both hands to mouth": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "stumble back": [
+    1,
+    5,
+    0,
+    0,
+    0,
+    0
+  ],
+  "hip rotation": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "touch top of left hand with right hand": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "place it back": [
+    5,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "hop on both legs": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "sidle left": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "stand still with arms back and head lean forward": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "play the flute": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "stretch out arms forward": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    1
+  ],
+  "hold up right leg and lower left arm": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "throw football": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "pull object": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "both arm in front of belly": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "lift container with right hand": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "place an object to the right": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "walk forward on balance beam": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "twist knee to right": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "arms block position": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+  ],
+  "baby position": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "hold both arms up to dance": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "shave": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "left knee down": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "use left hand for support": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "bends knees and down at waist": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "raise right hand over brow": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "check wrist watch": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "two handed push": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "look up to the right": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "kick with right leg": [
+    5,
+    5,
+    5,
+    5,
+    5,
+    5
+  ],
+  "safe motion": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0
+  ],
+  "touch stomach with left hand": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "right leg on left knee": [
+    5,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "stretch legs and twist body series": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "make circles with hands": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "move head right and left": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "walk in one place": [
+    0,
+    1,
+    1,
+    1,
+    0,
+    0
+  ],
+  "overhead catch": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "sweep hands side to side": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "wave hands in and out": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "move both arms up": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "put down phone": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "lift left leg": [
+    1,
+    0,
+    1,
+    1,
+    1,
+    1
+  ],
+  "walk backwards with arms attach to the waist": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "extend hands above head": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "widen legs": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "arms outstretched": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "stumble": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "step": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "windmill both arms from shoulder": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "lift left foot": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0
+  ],
+  "put down bottle with left hand": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "rotate body to the left": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "walk while cross feet": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "right wide punch series": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "come back up": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "take a step back": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "kick the object": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "low arms": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "hug with a sway motion": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+  ],
+  "air kicking right foot": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "twist body to the left": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "bob feet": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "wake forward": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "stumble left": [
+    0,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "look behind on right": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "comb through hair with fingers": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "squat left over right leg": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "arms out at sides": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    0
+  ],
+  "hold right hand up in front": [
+    0,
+    0,
+    1,
+    1,
+    1,
+    1
+  ],
+  "swim gesture series b": [
+    1,
+    0,
+    1,
+    1,
+    1,
+    1
+  ],
+  "walk in opposite direction with hands on face": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "bring arms in front": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "left and right hand up in down to up movements": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    1
+  ],
+  "grab right thigh": [
+    0,
+    0,
+    1,
+    1,
+    0,
+    0
+  ],
+  "place hands on waist": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "walk 180 degrees right": [
+    1,
+    1,
+    0,
+    0,
+    0,
+    0
+  ],
+  "roll upper body from waist": [
+    1,
+    0,
+    0,
+    0,
+    1,
+    1
+  ],
+  "walk and turn right": [
+    11111,
+    11,
+    1
+  ]
+}
