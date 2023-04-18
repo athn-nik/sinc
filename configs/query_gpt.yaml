@@ -1,0 +1,22 @@
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+
+logger_level: INFO
+
+
+text: ???
+
+gpt_path: ${path.deps}/gpt/gpt3-labels.json
+
+
+# Composing nested config with default
+defaults:
+  - machine: null
+  - trainer: null
+  - /path@path
+  - override hydra/job_logging: custom
+  - override hydra/hydra_logging: custom
+  - _self_

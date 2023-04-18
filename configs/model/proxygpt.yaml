@@ -1,0 +1,25 @@
+name: distilbert_bodypart_classifier
+modelname: distilbert_bodypart_classifier
+
+_target_: sinc.model.proxygpt.transformer.BodyPartClassifier
+
+latent_dim: 256
+
+ff_size: 1024
+num_layers: 6
+num_head: ${model.num_layers}
+
+droupout: 0.1
+activation: "gelu"
+
+finetune: false
+modelpath: ${path.deps}/distilbert-base-uncased
+
+lr_scheduler: null # reduceonplateau, steplr
+
+
+nbodyparts: 6
+
+#  - losses: space
+defaults:
+  - optim: adamw
