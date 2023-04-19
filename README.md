@@ -1,9 +1,10 @@
-# SINC
- Official PyTorch implementation of the paper "SINC: Spatial Composition of 3D Human Motions for Simultaneous Action Generation"
+
+ 
 
 <p align="center">
 
   <h1 align="center">SINC: Spatial Composition of 3D Human Motions for Simultaneous Action Generation
+    <br>
     <a href='https://arxiv.org/abs/'>
     <img src='https://img.shields.io/badge/arxiv-report-red' alt='ArXiv PDF'>
     </a>
@@ -11,26 +12,23 @@
     <img src='https://img.shields.io/badge/Project-Page-blue?style=flat&logo=Google%20chrome&logoColor=blue' alt='Project Page'>
   </h1>
   <p align="center">
-    <a href="https://ps.is.mpg.de/person/nathanasiou"><strong>Nikos Athanasiou</strong></a>
+    <a href="https://ps.is.mpg.de/person/nathanasiou"><strong>Nikos Athanasiou*</strong></a>
     ·
-    <a href="https://mathis.petrovich.fr"><strong>Mathis Petrovich</strong></a>
+    <a href="https://mathis.petrovich.fr"><strong>Mathis Petrovich*</strong></a>
     ·
     <a href="https://ps.is.tuebingen.mpg.de/person/black"><strong>Michael J. Black</strong></a>
     ·
     <a href="https://imagine.enpc.fr/~varolg"><strong>G&#252;l Varol</strong></a>
   </p>
   <h2 align="center">arXiv 2023</h2>
-  <div align="center">
+ <div align="center">Official PyTorch implementation of the paper "SINC: Spatial Composition of 3D Human Motions for Simultaneous Action Generation" </div>
+ <div align="center">
   </div>
 </p>
 <p float="center">
   <img src="assets/action2.gif" width="49%" />
   <img src="assets/action3.gif" width="49%" />
 </p>
-
-Check our upcoming YouTube video for a quick overview and our paper for more details.
-
-### Video 
 
 <!-- | Paper Video                                                                                                | Qualitative Results                                                                                                |
 |------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
