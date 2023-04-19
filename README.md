@@ -179,12 +179,12 @@ python sample_eval_latent.py folder=/is/cluster/fast/nathanasiou/logs/space/sing
 
 ```bibtex
 @inproceedings{SINC:ICCV:2022,
-  title={SINC: Spatial Composition of 3D Human Motions for Simultaneous Action Generation},
+  title={{SINC}: Spatial Composition of {3D} Human Motions for Simultaneous Action Generation},
   author={Athanasiou, Nikos and Petrovich, Mathis and Black, Michael J. and Varol, G\"{u}l },
   booktitle = {arXiv},
-  month = {September},
   year = {2023}
 }
+
 ```
 ## License
 This code is available for **non-commercial scientific research purposes** as defined in the [LICENSE file](LICENSE). By downloading and using this code you agree to the terms in the [LICENSE](LICENSE). Third-party datasets and software are subject to their respective licenses.
