@@ -12,7 +12,7 @@ import time
 from rich import print 
 
 logger = logging.getLogger(__name__)
-openai.api_key = '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'
+openai.api_key = '<api-key>'
 
 @hydra.main(config_path="configs", config_name="gpt_bdpts")
 def _gpt_extract(cfg: DictConfig):
