@@ -45,7 +45,9 @@ This implementation:
   - For SINC method
   - For the baselines 
   - For the ablations done in the paper
-## Environment & Basic Setup
+
+<h2 align="center">Environment & Basic Setup</h2>
+
 <details>
   <summary>Details</summary>
 SINC has been implemented and tested on Ubuntu 20.04 with python >= 3.10.
@@ -88,6 +90,9 @@ experiment
 |
 └───checkpoints
     │   last.ckpt
+└───wandb
+│   | config.yaml
+
 ```
 
 Then, running the demo is as simple as:
@@ -97,13 +102,15 @@ Then, running the demo is as simple as:
 python interact_sinc.py folder=/path/to/experiment output=/path/to/yourfname texts='[text prompt1, text prompt2, text prompt3, <more prompts comma divided>]' durs='[dur1, dur2, dur3, ...]'
 
 ```
-## Data & Training
 
-<details>
+<h2 align="center">Data & Training</h2>
+
+ <details>
   <summary>Details</summary>
 
+<div align="center"><em>There is no need to do this step if you have followed the instructions and have done it for TEACH. Just use the ones from TEACH.</em></div>
 
-<div align="center"><h3>Data Setup</h3></center></div>
+<div align="center"><h3>Step 1: Data Setup</h3></center></div>
 
 Download the data from [AMASS website](https://amass.is.tue.mpg.de). Then, run this command to extract the amass sequences that are annotated in babel:
 
@@ -111,7 +118,7 @@ Download the data from [AMASS website](https://amass.is.tue.mpg.de). Then, run t
 python scripts/process_amass.py --input-path /path/to/data --output-path path/of/choice/default_is_/babel/babel-smplh-30fps-male --use-betas --gender male
 ```
 
-Download the data from [SINC website](https://sinc.is.tue.mpg.de), after signing in. The data SINC was trained was a processed version of BABEL. Hence, we provide them directly to your via our website, where you will also find more relevant details. 
+Download the data from [TEACH website](https://teach.is.tue.mpg.de), after signing in. The data SINC was trained was a processed version of BABEL. Hence, we provide them directly to your via our website, where you will also find more relevant details. 
 Finally, download the male SMPLH male body model from the [SMPLX website](https://smpl-x.is.tue.mpg.de/). Specifically the AMASS version of the SMPLH model. Then, follow the instructions [here](https://github.com/vchoutas/smplx/blob/main/tools/README.md#smpl-h-version-used-in-amass) to extract the smplh model in pickle format.
 
 The run this script and change your paths accordingly inside it extract the different babel splits from amass:
@@ -150,7 +157,7 @@ You can do the same for your experiments:
 
 Then you can use this directory for your experiments.
 
-<div align="center"><h3>Training</h3></center></div>
+<div align="center"><h3>Step 2: Training</h3></center></div>
 
 To start training after activating your environment. Do:
 
@@ -161,9 +168,36 @@ python train.py experiment=baseline logger=none
 Explore `configs/train.yaml` to change some basic things like where you want
 your output stored, which data you want to choose if you want to do a small
 experiment on a subset of the data etc.
-[TODO]: More on this coming soon.
+You can disable the text augmentations and using `single_text_desc: false` in the
+model configuration file. You can check the `train.yaml` for the main configuration
+and this file will point you to the rest of the configs (eg. `model` refers to a config found in
+the folder `configs/model` etc.).
+
 </details>
 
+<h2 align="center"> Evaluation</h2>
+
+<details>
+  <summary>Details</summary>
+
+After training, to sample and evaluate a model which has been stored in a folder `/path/to/experiment`
+``` bash
+python sample.py folder=/path/to/experiment/ ckpt_name=699 set=small
+
+python eval.py folder=/path/to/experiment/ ckpt_name=699 set=small
+```
+
+- You can change the `jointstype` for the sampling script to output and save rotations and translation by setting `joinstype=rots`.
+- By setting the `set=full` you will obtain the results on the full BABEL validation set.
+
+You can calculate the TEMOS score using: 
+
+``` bash
+python sample_eval_latent.py folder=/is/cluster/fast/nathanasiou/logs/space/single-text-baselines/rs_only/babel-amass/ ckpt_name=699 set=small
+```
+</details>
+
+ 
 ## Citation
 
 ```bibtex
