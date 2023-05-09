@@ -26,8 +26,9 @@
   </div>
 </p>
 <p float="center">
-  <img src="assets/action2.gif" width="49%" />
-  <img src="assets/action3.gif" width="49%" />
+  <div align="center">
+  <img src="assets/sinc_tsr.gif" />
+  </div>
 </p>
 
 <!-- | Paper Video                                                                                                | Qualitative Results                                                                                                |
