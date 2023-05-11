@@ -15,7 +15,9 @@ deps/*
 /condor_logs
 lightning_logs
 sinc-env
-
+cluster
+job_spawn
+slurm_launch
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
