@@ -102,6 +102,7 @@ class BaseModel(LightningModule):
         if split == "val":
             metrics_dict = self.metrics.compute()
             dico.update({f"Metrics/{metric}": value for metric, value in metrics_dict.items() if '_mean_' in metric})
+            dico.update({f"Metrics/Temos_Score": metrics_dict['Temos_Score']})
         self.log_dict(dico, on_epoch=True, sync_dist=True)
         return 
 

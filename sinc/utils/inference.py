@@ -198,6 +198,26 @@ sinc_supmat = ['spatial_pairs-4243-1',
 
 
 
+sinc_single = [  [('walk forwards',)], 
+                 [('stretch both arms',), ],
+                 [('kick back with right leg',),],
+                 [('kick with left leg',),],
+                 [('kick with right leg',),],
+                 [('turn to the left',),],
+                 [('raise both arms straight up',),],
+                 [('punch forward with left arm',)],
+                 [('kneel',)],
+                 [('lunges forward of right foot',)],
+                 [('sit down',)],
+                ]
+
+sinc_single_60 = [ [examp[0], 60] for examp in sinc_single]
+sinc_single_90 = [ [examp[0], 90] for examp in sinc_single]
+sinc_single_120 = [ [examp[0], 120] for examp in sinc_single]
+
+sinc_single = sinc_single_90 + sinc_single_120 + sinc_single_60
+
+
 sinc_ood_raw = [ [('swivel heads in circles', 'stretch both arms'), ],
                  [('left arm raise forward', 'kick back with right leg'),],
                  [('punch with right arm', 'kick with left leg'),],

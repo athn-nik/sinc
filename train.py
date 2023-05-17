@@ -73,10 +73,45 @@ def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
     # in case you want to use torch.compile()
     # torch._dynamo.config.debug=True
     
+    
+    
+    def load_temos(cfg):
+        from pathlib import Path
+
+        from omegaconf import OmegaConf
+
+        from hydra.utils import instantiate
+        temos_path = '/is/cluster/fast/nathanasiou/data/motion-language/sinc-checkpoints/temos_score/bs32'
+
+        temos_path = Path(temos_path)
+        temoscfg = OmegaConf.load(temos_path / ".hydra/config.yaml")
+
+        # Overload it
+        # Instantiate all modules specified in the configs
+        temos_model = instantiate(temoscfg.model,
+                                  nfeats=135,
+                                  logger_name="none",
+                                  nvids_to_save=None,
+                                  _recursive_=False)
+
+
+        last_ckpt_path = temos_path / "checkpoints/last.ckpt"
+        # Load the last checkpoint
+        temos_model.load_state_dict(torch.load(last_ckpt_path)["state_dict"])
+        # temos_model = temos_model.load_from_checkpoint(last_ckpt_path)
+        temos_model.eval()
+        return temos_model, temoscfg
+    
+    eval_model, _ = load_temos(cfg)
+
+    from copy import deepcopy
+    temos_motion_enc = deepcopy(eval_model.motionencoder)
+    #####
     logger.info(f'Loading model {cfg.model.modelname}')
-    model = instantiate(cfg.model,
+    model = instantiate(cfg.model, eval_model=temos_motion_enc,
                         nfeats=data_module.nfeats,
                         _recursive_=False)
+
     logger.info(f"Model '{cfg.model.modelname}' loaded")
     logger.info("Loading logger")
     train_logger = instantiate_logger(cfg)
@@ -98,6 +133,7 @@ def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
         instantiate(cfg.callback.progress, metric_monitor=metric_monitor),
         instantiate(cfg.callback.latest_ckpt),
         instantiate(cfg.callback.last_ckpt),
+        instantiate(cfg.callback.render)
     ]
 
     logger.info("Callbacks initialized")

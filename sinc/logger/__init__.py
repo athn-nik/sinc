@@ -21,7 +21,9 @@ def instantiate_logger(cfg: DictConfig):
         conf['dir'] = project_save_dir
         conf['config'] = cfg_to_flatten_config(cfg)
         # maybe do this for connection error in cluster, could be redundant
-        conf['settings'] = wandb.Settings(start_method="fork")
+        
+        # conf['settings'] = wandb.Settings(start_method="fork")
+        
         # conf['mode']= 'online' if not cfg.logger.offline else 'offline'
         conf['notes']= cfg.logger.notes if cfg.logger.notes is not None else None
         conf['tags'] = cfg.logger.tags.strip().split(',')\
