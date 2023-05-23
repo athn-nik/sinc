@@ -10,7 +10,8 @@ from pytorch_lightning.utilities.rank_zero import rank_zero_only
 class BaseModel(LightningModule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.save_hyperparameters(logger=False)
+        self.save_hyperparameters(logger=False, 
+                                  ignore=['eval_model']) # ignore TEMOS score
 
         # Save visuals, one validation step per validation epoch
         self.store_examples = {"train": None,
@@ -117,15 +118,16 @@ class BaseModel(LightningModule):
 
     def configure_optimizers(self):
         optim_dict = {}
-        optimizer = torch.optim.AdamW(lr=3e-4, params=self.parameters())
-        # instantiate(self.hparams.optim, params=self.parameters())
+        optimizer = instantiate(self.hparams.optim, params=self.parameters())
+        # torch.optim.AdamW(lr=3e-4, params=self.parameters())
+        
         optim_dict['optimizer'] = optimizer
 
         if self.hparams.lr_scheduler == 'reduceonplateau':
             optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, threshold=1e-3)
             optim_dict['monitor'] = 'losses/total/train'
         elif self.hparams.lr_scheduler == 'steplr':
-            optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100)
+            optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.StepLR(optimizer, step_size=200)
 
         return optim_dict 
 
