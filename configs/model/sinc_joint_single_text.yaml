@@ -12,7 +12,7 @@ num_head: ${model.num_layers}
 droupout: 0.1
 activation: "gelu"
 nvids_to_save: ${callback.render.nvids_to_save}
-lr_scheduler: null # reduceonplateau, steplr
+lr_scheduler: steplr # reduceonplateau, steplr
 synthetic: ${data.synthetic}
 
 

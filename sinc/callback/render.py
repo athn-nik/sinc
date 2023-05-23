@@ -156,7 +156,6 @@ class RenderCallback(Callback):
         # nvids = min(self.nvids, len(ref_joints_or_verts))
         pl_module.eval()
         with torch.no_grad():
-
             jts_T = pl_module.text_to_motion_forward(texts, lengths, return_motion='vertices')
             jts_T = [mot.detach().cpu().numpy() for mot in jts_T]
 
