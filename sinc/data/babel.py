@@ -210,7 +210,9 @@ class BABEL(Dataset):
             # elif self.dtype == 'spatial_pairs': possible_actions = all_actions['spatial_pairs']
             # else: raise NotImplementedError(f'The datatype {self.dtype} is not supported.')
             # GPT part
-            if i == 1000: break
+            
+            # if i == 1000: break
+            
             for dtype, extracted_actions in possible_actions.items():
 
                 for index, seg in enumerate(extracted_actions):
