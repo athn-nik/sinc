@@ -35,7 +35,7 @@ defaults:
   - textencoder: text_space
   - motionencoder: actor
   - motiondecoder: actor
-  - losses: sinc.indep
+  - losses: sinc_indep
   - optim: adamw
   - /model/losses/function/recons@func_recons
   - /model/losses/function/recons@func_latent
