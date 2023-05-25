@@ -395,8 +395,8 @@ class SINC(BaseModel):
                 feats_to_train_idx = self.transforms.rots2rfeats(smpl_comb)
                 curlen = len(feats_to_train_idx)
             else:
-                feats_to_train_idx = batch['datastruct'][idx].detach().cpu()
                 curlen = batch['length'][idx]
+                feats_to_train_idx = batch['datastruct'][idx, :curlen].detach().cpu()
             motion_lst.append(feats_to_train_idx)
             lens_mot.append(curlen)
         mot_collated = collate_tensor_with_padding(motion_lst)
