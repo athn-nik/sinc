@@ -387,7 +387,12 @@ class BABEL(Dataset):
                 # plt.figure()
                 # plt.hist(avg_vels, bins='fd', density=True)
                 # plt.savefig(f'/home/nathanasiou/Desktop/scratch/velhist_{bp}.png')
-
+        
+        # annot_path_fx = Path(datapath)/f'../deps/gpt/gpt3-labels_gt_100.json'
+        # from sinc.utils.text_constants import unique_texts_babel_train_val
+        # xx = {v[0]:gpt_labels[k][0] for k,v in texts_data.items() if v[0] in unique_texts_babel_train_val[:100]}
+        # # write_json(xx, '/home/nathanasiou/Desktop/conditional_action_gen/heur_gpt.json')
+        # import ipdb; ipdb.set_trace()
         self.motion_data = motion_data
         self.texts_data = texts_data
         self._split_index = list(motion_data.keys())

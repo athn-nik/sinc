@@ -68,7 +68,7 @@ class SINC(BaseModel):
                 
         # Keep track of the losses
         self._losses = ModuleDict({split: instantiate(losses, vae=vae,
-                                                      separate_latents=separate_latents,
+                                                        separate_latents=separate_latents,
                                                       _recursive_=False)
                                    for split in ["losses_train", "losses_val"]})
         self.losses = {key: self._losses["losses_" + key] for key in ["train", "val"]}
