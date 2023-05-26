@@ -102,12 +102,13 @@ def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
         temos_model.eval()
         return temos_model, temoscfg
     
-    eval_model, _ = load_temos(cfg)
+    # eval_model, _ = load_temos(cfg)
 
-    from copy import deepcopy
-    temos_motion_enc = deepcopy(eval_model.motionencoder)
-    #####
-    logger.info(f'Loading model {cfg.model.modelname}')
+    # from copy import deepcopy
+    # temos_motion_enc = deepcopy(eval_model.motionencoder)
+    # #####
+    # logger.info(f'Loading model {cfg.model.modelname}')
+    temos_motion_enc = None 
     model = instantiate(cfg.model, eval_model=temos_motion_enc,
                         nfeats=data_module.nfeats,
                         _recursive_=False)

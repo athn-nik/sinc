@@ -27,7 +27,7 @@ def variance(x, T, dim):
     return out / (T - 1)
 
 class ComputeMetricsSinc(Metric):
-    def __init__(self, eval_model, jointstype: str = "smplh",
+    def __init__(self, eval_model=None, jointstype: str = "smplh",
                  sync_on_compute=False,
                  dist_sync_on_step=False,
                  full_state_update=False,
@@ -108,15 +108,17 @@ class ComputeMetricsSinc(Metric):
         # Compute average of AVEs
         AVE_metrics["AVE_mean_pose"] = self.AVE_pose.mean() / count_seq
         AVE_metrics["AVE_mean_joints"] = self.AVE_joints.mean() / count_seq
-        temos_score = self.Temos_Score / count_seq
-
+        
         # temos_score["Temos_Score"] = self.TEMOS_SCORE.mean()
 
         if mode == 'train':
             AVE_metrics.pop("AVE_pose")
             AVE_metrics.pop("AVE_joints")
-
-        return {**APE_metrics, **AVE_metrics, 'Temos_Score': temos_score}
+        
+        if self.eval_model is not None:
+            temos_score = self.Temos_Score / count_seq
+            return {**APE_metrics, **AVE_metrics, 'Temos_Score': temos_score}
+        return {**APE_metrics, **AVE_metrics}
 
 
     def update(self, feat_text_lst: Tensor, feat_ref_lst: Tensor,
@@ -132,13 +134,14 @@ class ComputeMetricsSinc(Metric):
         jts_text = collate_tensor_with_padding(jts_text_lst)
         jts_ref = collate_tensor_with_padding(jts_ref_lst)
 
-        with torch.no_grad():
-            distribution_ref = self.eval_model(rfeats_ref_lst)
-            distribution_motion = self.eval_model(rfeats_text_lst)
-            mu_ref = distribution_ref.loc.squeeze()
-            mu_motion = distribution_motion.loc.squeeze()
-
-        self.Temos_Score += 2*(1-torch.nn.CosineSimilarity()(mu_motion, mu_ref)).mean()
+        if self.eval_model is not None:
+            with torch.no_grad():
+                distribution_ref = self.eval_model(rfeats_ref_lst)
+                distribution_motion = self.eval_model(rfeats_text_lst)
+                mu_ref = distribution_ref.loc.squeeze()
+                mu_motion = distribution_motion.loc.squeeze()
+        if self.eval_model is not None:
+            self.Temos_Score += 2*(1-torch.nn.CosineSimilarity()(mu_motion, mu_ref)).mean()
 
         self.count += sum(lengths)
         self.count_seq += len(lengths)
