@@ -572,4 +572,5 @@ class SINC(BaseModel):
         del distributions_from_text, distribution_from_motion
         del latent_vectors_text, latent_from_motion
         del batch
+        torch.cuda.empty_cache()
         return total_loss, loss_dict

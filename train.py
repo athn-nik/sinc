@@ -134,7 +134,7 @@ def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
         instantiate(cfg.callback.progress, metric_monitor=metric_monitor),
         instantiate(cfg.callback.latest_ckpt),
         instantiate(cfg.callback.last_ckpt),
-        instantiate(cfg.callback.render)
+        # instantiate(cfg.callback.render)
     ]
 
     logger.info("Callbacks initialized")

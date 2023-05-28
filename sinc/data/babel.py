@@ -408,6 +408,9 @@ class BABEL(Dataset):
         #     ddict[k] = [v[0], v[1], durations[k]]
         # write_json(ddict,
         #            f'{get_original_cwd()}/deps/inference/labels_{split}_spatial.json')
+        if self.heuristic:
+            del jts_pos
+            del key_pos
 
         if split == 'test' or split == 'val' or mode == 'inference':
             # does not matter should be removed, just for code to not break
