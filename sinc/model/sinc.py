@@ -413,9 +413,9 @@ class SINC(BaseModel):
         # gpt_parts = batch['bp-gpt']
         # if self.hparams.synthetic:
         lens, motions_ds = self.transform_batch_to_mixed_synthetic(batch)
-        batch['datastruct_a']
-        batch['datastruct_b']
-        batch['datastruct']
+        del batch['datastruct_a']
+        del batch['datastruct_b']
+        del batch['datastruct']
         batch['datastruct'] = motions_ds.to(self.device)
         batch['length'] = lens
         
