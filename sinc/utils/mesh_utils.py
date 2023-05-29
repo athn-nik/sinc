@@ -2,7 +2,6 @@ import pyrender
 import trimesh
 import numpy as np
 import sys
-import cv2
 from sinc.utils.smpl_body_utils import colors
 
 

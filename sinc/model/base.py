@@ -119,16 +119,16 @@ class BaseModel(LightningModule):
 
     def configure_optimizers(self):
         optim_dict = {}
-        optimizer = instantiate(self.hparams.optim, params=self.parameters())
-        # torch.optim.AdamW(lr=3e-4, params=self.parameters())
+        optimizer = torch.optim.AdamW(lr=self.hparams.cfg.TRAIN.OPTIM.LR, params=self.parameters())
         
         optim_dict['optimizer'] = optimizer
-
-        if self.hparams.lr_scheduler == 'reduceonplateau':
-            optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, threshold=1e-3)
-            optim_dict['monitor'] = 'losses/total/train'
-        elif self.hparams.lr_scheduler == 'steplr':
-            optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.StepLR(optimizer, step_size=200)
+        # if self.hparams.NAME 
+        if self.hparams.cfg.NAME != 'Mld_VAE_actor':
+            if self.hparams.lr_scheduler == 'reduceonplateau':
+                optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, threshold=1e-3)
+                optim_dict['monitor'] = 'losses/total/train'
+            elif self.hparams.lr_scheduler == 'steplr':
+                optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.StepLR(optimizer, step_size=200)
 
         return optim_dict 
 

@@ -6,8 +6,8 @@ from pathlib import Path
 from omegaconf import DictConfig, OmegaConf
 from sinc.data.tools.collate import collate_length_and_text
 import sinc.launch.prepare
-from sinc.render.mesh_viz import visualize_meshes
-from sinc.render.video import save_video_samples, stack_vids
+# from sinc.render.mesh_viz import visualize_meshes
+# from sinc.render.video import save_video_samples, stack_vids
 import torch
 from sinc.transforms.base import Datastruct
 from sinc.utils.inference import cfg_mean_nsamples_resolution, get_path
@@ -47,24 +47,14 @@ def load_temos(classifier_path, ckpt_name="last"):
     else:
         last_ckpt_path = temos_path / f"checkpoints/latest-epoch={ckpt_name}.ckpt"
     from collections import OrderedDict
+    state_dict = torch.load('/is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/temos-bs64x1-scheduler/babel-amass/checkpoints/latest-epoch=599.ckpt', map_location='cpu')['state_dict']
 
-    # state_dict = torch.load('/is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/temos-bs64x1-scheduler/babel-amass/checkpoints/latest-epoch=599.ckpt', map_location='cpu')['state_dict']
-    # model_dict = OrderedDict()
-    # for k,v in state_dict.items():
-    #     if k.split('.')[0] not in ['eval_model', 'metrics']:
-    #         model_dict[k] = v
-    # path_of_old = '/ps/project/motion_text_synthesis/sinc/experiments/space_results/bak_space/cvpr_space_resume_jz/temos/babel-amass/checkpoints/latest-epoch=999.ckpt'
-    # ck = torch.load(Path(pp) / 'checkpoints/last.ckpt')
-    # torch.save(ck['state_dict'], '/home/nathanasiou/Desktop/scratch/ckpt.pt')
-    old_temos_pp = '/ps/project/motion_text_synthesis/sinc/eval_iccv_temos.ckpt'
-    state_dict_old = torch.load(old_temos_pp, map_location='cpu')
     model_dict = OrderedDict()
-    for k,v in state_dict_old.items():
-
+    for k,v in state_dict.items():
         if k.split('.')[0] not in ['eval_model', 'metrics']:
             model_dict[k] = v
-
     temos_model.load_state_dict(model_dict, strict=True)
+
     # Load the last checkpoint
     # temos_model = temos_model.load_from_checkpoint(last_ckpt_path)
     temos_model.eval()
@@ -137,11 +127,28 @@ def calc_temos_score(newcfg: DictConfig) -> None:
 
     logger.info("Loading model")
     # Instantiate all modules specified in the configs
-    model = instantiate(cfg.model,
-                        nfeats=data_module.nfeats,
-                        logger_name="none",
-                        nvids_to_save=None,
-                        _recursive_=False)
+    from mld_specifics import parse_args
+    cfg_for_mld = parse_args()  # parse config file
+
+    # MLD specific changes
+    from sinc.model.mld import MLD
+    model = MLD(cfg_for_mld, cfg.transforms, cfg.path)
+    state_dict = torch.load('/is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/temos-bs64x1-scheduler/babel-amass/checkpoints/latest-epoch=599.ckpt', map_location='cpu')
+    # extract encoder/decoder
+    from collections import OrderedDict
+    decoder_dict = OrderedDict()
+    encoder_dict = OrderedDict()
+    for k, v in state_dict['state_dict'].items():
+        if k.split(".")[0] == "motionencoder":
+            name = k.replace("motionencoder.", "")
+            encoder_dict[name] = v
+        if k.split(".")[0] == "motiondecoder":
+            name = k.replace("motiondecoder.", "")
+            decoder_dict[name] = v
+
+    model.vae_encoder.load_state_dict(encoder_dict, strict=True)
+    model.vae_decoder.load_state_dict(decoder_dict, strict=True)
+
 
     logger.info(f"Model '{cfg.model.modelname}' loaded")
 
@@ -152,8 +159,6 @@ def calc_temos_score(newcfg: DictConfig) -> None:
     model.sample_mean = cfg.mean
     model.fact = cfg.fact
 
-    if not model.hparams.vae and cfg.number_of_samples > 1:
-        raise TypeError("Cannot get more than 1 sample if it is not a VAE.")
 
     # trainer = pl.Trainer(**OmegaConf.to_container(cfg.trainer, resolve=True))
 
@@ -243,13 +248,16 @@ def calc_temos_score(newcfg: DictConfig) -> None:
                                                           return_motion=motion_type)
 
                 else:
-                    motion = model.text_to_motion_forward(cur_texts,
-                                                          cur_lens,
-                                                          gpt_parts=gpt_parts,
-                                                          return_motion=motion_type)
+                    motion = model(cur_texts[0],cur_lens)
+                # motion = datastruct.rots
+                # rots, transl = motion.rots, motion.trans
+
+                # from sinc.transforms.smpl import RotTransDatastruct
+                # final_datastruct = self.Datastruct(
+                # rots_=RotTransDatastruct(rots=rots, trans=transl))
 
                 distribution_ref = temos_model.motionencoder(torch.squeeze(temos_model.transforms.rots2rfeats(one_data["datastruct"]))[None])
-                distribution_motion = temos_model.motionencoder(torch.squeeze(temos_model.transforms.rots2rfeats(motion))[None])
+                distribution_motion = temos_model.motionencoder(torch.squeeze(temos_model.transforms.rots2rfeats(motion))[None]) 
 
                 mu_ref = distribution_ref.mean[0,0]
                 mu_motion = distribution_motion.mean[0,0]

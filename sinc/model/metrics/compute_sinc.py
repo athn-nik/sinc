@@ -32,9 +32,11 @@ class ComputeMetricsSinc(Metric):
                  dist_sync_on_step=False,
                  full_state_update=False,
                  **kwargs):
-        super().__init__(sync_on_compute=sync_on_compute,
+        super().__init__(
+                         # sync_on_compute=sync_on_compute,
                          dist_sync_on_step=dist_sync_on_step,
-                         full_state_update=full_state_update)
+                        #  full_state_update=full_state_update
+                         )
         assert jointstype in ["smplh"]
 
         from sinc.info.joints import number_of_joints

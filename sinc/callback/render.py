@@ -3,7 +3,7 @@ from pathlib import Path
 import torch
 from pytorch_lightning import LightningModule, Trainer
 from pytorch_lightning.callbacks import Callback
-from sinc.render import visualize_meshes, render_animation
+
 from sinc.tools.easyconvert import matrix_to
 from sinc.utils.file_io import read_json
 from pytorch_lightning.utilities import rank_zero_only
@@ -16,6 +16,7 @@ plt_logger.setLevel(logging.WARNING)
 
 # Can be run asynchronously 
 def render_and_save(args, vid_format="mp4"):
+    from sinc.render import visualize_meshes, render_animation
     jts_or_vts, name, index, split, folder, fps, description, current_epoch = args
     fig_number = str(index).zfill(2)
     filename = f"{name}_{split}_{fig_number}.{vid_format}"

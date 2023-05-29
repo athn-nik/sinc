@@ -51,6 +51,9 @@ def _train(cfg: DictConfig):
 
 
 def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
+    import os
+    os.environ['HYDRA_FULL_ERROR'] = '1'
+
     # import multiprocessing
     # multiprocessing.set_start_method('spawn')
     logger.info("Training script. The outputs will be stored in:")
@@ -109,9 +112,34 @@ def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
     # #####
     # logger.info(f'Loading model {cfg.model.modelname}')
     temos_motion_enc = None 
-    model = instantiate(cfg.model, eval_model=temos_motion_enc,
-                        nfeats=data_module.nfeats,
-                        _recursive_=False)
+    if cfg.model.modelname == 'sinc_mld':
+        from mld_specifics import parse_args
+        cfg_for_mld = parse_args()  # parse config file
+
+        from sinc.model.mld import MLD
+        model = MLD(cfg_for_mld, cfg.transforms, cfg.path)
+        state_dict = torch.load('/is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/temos-bs64x1-scheduler/babel-amass/checkpoints/latest-epoch=599.ckpt', map_location='cpu')
+        # extract encoder/decoder
+        from collections import OrderedDict
+        decoder_dict = OrderedDict()
+        encoder_dict = OrderedDict()
+        for k, v in state_dict['state_dict'].items():
+            if k.split(".")[0] == "motionencoder":
+                name = k.replace("motionencoder.", "")
+                encoder_dict[name] = v
+            if k.split(".")[0] == "motiondecoder":
+                name = k.replace("motiondecoder.", "")
+                decoder_dict[name] = v
+    
+        model.vae_encoder.load_state_dict(encoder_dict, strict=True)
+        model.vae_decoder.load_state_dict(decoder_dict, strict=True)
+
+
+    else:
+        model = instantiate(cfg.model, eval_model=temos_motion_enc,
+                            nfeats=data_module.nfeats,
+                            _recursive_=False)
+ 
 
     logger.info(f"Model '{cfg.model.modelname}' loaded")
     logger.info("Loading logger")
@@ -134,7 +162,7 @@ def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
         instantiate(cfg.callback.progress, metric_monitor=metric_monitor),
         instantiate(cfg.callback.latest_ckpt),
         instantiate(cfg.callback.last_ckpt),
-        instantiate(cfg.callback.render)
+        # instantiate(cfg.callback.render)
     ]
 
     logger.info("Callbacks initialized")
