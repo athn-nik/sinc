@@ -248,7 +248,7 @@ def calc_temos_score(newcfg: DictConfig) -> None:
                                                           return_motion=motion_type)
 
                 else:
-                    motion = model(cur_texts[0],cur_lens)
+                    motion = model(cur_texts,cur_lens)
                 # motion = datastruct.rots
                 # rots, transl = motion.rots, motion.trans
 

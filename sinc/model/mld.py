@@ -16,7 +16,7 @@ from torch import nn
 from hydra.utils import instantiate
 from sinc.model.metrics import ComputeMetricsSinc
 
-NLP_PROC = spacy.load("en_core_web_sm")
+# NLP_PROC = spacy.load("en_core_web_sm")
 
 class MLD(BaseModel):
     """
@@ -92,7 +92,6 @@ class MLD(BaseModel):
                                              beta_schedule='scaled_linear',
                                              variance_type='fixed_small',
                                              clip_sample=False)
-
 
         self.optimizer = AdamW(lr=1e-4,
                                 params=self.parameters())
@@ -727,6 +726,7 @@ class MLD(BaseModel):
             self.log_dict(dico, sync_dist=True, rank_zero_only=True)
 
     def allsplit_step(self, split: str, batch, batch_idx):
+        import ipdb; ipdb.set_trace()
         lens, motions_ds = self.transform_batch_to_mixed_synthetic(batch)
         del batch['datastruct_a']
         del batch['datastruct_b']
