@@ -44,6 +44,8 @@ This implementation:
   - For SINC method
   - For the baselines 
   - For the ablations done in the paper
+- Standalone script to compose different motions from AMASS __automatically__
+and create synthetic data from existing motions
 
 <h2 align="center">Environment & Basic Setup</h2>
 
@@ -151,6 +153,17 @@ model configuration file. You can check the `train.yaml` for the main configurat
 and this file will point you to the rest of the configs (eg. `model` refers to a config found in
 the folder `configs/model` etc.).
 
+</details>
+<h2 align="center"> BABEL Compositions </h2>
+
+<details>
+  <summary>Details</summary>
+  Given that you have downloaded and processed the data, you can create spatial compositions
+  from gropundtruth motions of BABEL using a standalone script:
+
+  ```shell
+  python compose_motions.py
+  ```
 </details>
 
 <h2 align="center"> Evaluation</h2>
