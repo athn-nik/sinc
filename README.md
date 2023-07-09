@@ -153,6 +153,12 @@ model configuration file. You can check the `train.yaml` for the main configurat
 and this file will point you to the rest of the configs (eg. `model` refers to a config found in
 the folder `configs/model` etc.).
 
+<div align="center"><h3>Step 2: Training MLD</h3></center></div>
+
+```shell
+python train.py experiment=some_name run_id=mld-synth0.5-4gpu model=mld data.synthetic=true data.proportion_synthetic=0.5 data.dtype=seg+seq+spatial_pairs machine.batch_size=16 model.optim.lr=1e-4 logger=wandb sampler.max_len=150
+```
+
 </details>
 <h2 align="center"> BABEL Compositions </h2>
 
@@ -185,6 +191,11 @@ You can calculate the TEMOS score using:
 
 ``` bash
 python sample_eval_latent.py folder=/is/cluster/fast/nathanasiou/logs/space/single-text-baselines/rs_only/babel-amass/ ckpt_name=699 set=small
+```
+
+or for model trained using MLD:
+```
+python mld_temos.py folder=/is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/mld-wo-synth/babel-amass ckpt_name=399 set=small
 ```
 </details>
 
