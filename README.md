@@ -20,7 +20,7 @@
     ·
     <a href="https://imagine.enpc.fr/~varolg"><strong>G&#252;l Varol</strong></a>
   </p>
-  <h2 align="center">arXiv 2023</h2>
+  <h2 align="center">ICCV 2023</h2>
  <div align="center">Official PyTorch implementation of the paper "SINC: Spatial Composition of 3D Human Motions for Simultaneous Action Generation" </div>
  <div align="center">
   </div>
@@ -182,7 +182,7 @@ python sample_eval_latent.py folder=/is/cluster/fast/nathanasiou/logs/space/sing
 @inproceedings{SINC:ICCV:2022,
   title={{SINC}: Spatial Composition of {3D} Human Motions for Simultaneous Action Generation},
   author={Athanasiou, Nikos and Petrovich, Mathis and Black, Michael J. and Varol, G\"{u}l },
-  booktitle = {arXiv},
+  booktitle = {ICCV},
   year = {2023}
 }
 
