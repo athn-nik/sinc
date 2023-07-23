@@ -11,7 +11,7 @@ defaults:
   - joints2jfeats: rifke
 
 rots2rfeats:
-  normalization: ${transforms.normalization}
+  normalization: true
 
 joints2jfeats:
-  normalization: ${transforms.normalization}
+  normalization: true

@@ -9,7 +9,7 @@ logger_level: INFO
 folder: ???
 classifier_path: /is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/temos-bs64x1-scheduler/babel-amass/
 classifier_ckpt: 999
-
+savedir: ???
 split: val
 mean: false
 number_of_samples: 1
@@ -44,3 +44,4 @@ data:
 machine:
   batch_size: 16
   smpl_batch_size: 128
+

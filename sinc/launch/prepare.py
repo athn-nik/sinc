@@ -49,9 +49,9 @@ def get_kitname(load_amass_data: bool, load_with_rot: bool):
         return "kit-amass-rot"
 
 # this has to run -- pytorch memory leak in the dataloader associated with #973 pytorch issues
-import resource
-rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
-resource.setrlimit(resource.RLIMIT_NOFILE, (4096, rlimit[1]))
+#import resource
+#rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
+#resource.setrlimit(resource.RLIMIT_NOFILE, (12000, rlimit[1]))
 # Solutions summarized in --> https://github.com/Project-MONAI/MONAI/issues/701
 
 OmegaConf.register_new_resolver("code_path", code_path)

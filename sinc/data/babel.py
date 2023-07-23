@@ -6,6 +6,7 @@ from typing import Dict, List, Optional, Tuple
 import logging
 import joblib
 from copy import deepcopy
+from networkx import minimum_cut_value
 import numpy as np
 import pandas
 import torch
@@ -97,6 +98,7 @@ class BABEL(Dataset):
                  walk_only: Optional[bool] = False,
                  kit_only: Optional[bool] = False,
                  synthetic: Optional[bool] = False,
+                 heuristic: Optional[bool] = False,
                  proportion_synthetic: float = 0.5,
                  random_synthetic: Optional[bool] = False,
                  centered_compositions: Optional[bool] = False,
@@ -111,6 +113,8 @@ class BABEL(Dataset):
         self.dtype = dtype  # seg or seq or empty string for segments or sequences
         # or all of the stuff --> 'seg', 'seq', 'pairs', 'pairs_only', ''
         self.synthetic = synthetic
+        self.heuristic = heuristic
+
         self.proportion_synthetic = proportion_synthetic
         self.random_synthetic = random_synthetic
         self.walk_only = walk_only
@@ -144,6 +148,7 @@ class BABEL(Dataset):
 
         fname2key = get_babel_keys(path=datapath)
         motion_data = {}
+        joints_data = {}
         texts_data = {}
         durations = {}
         dtypes = {}
@@ -172,7 +177,23 @@ class BABEL(Dataset):
         # discard = read_json('/home/nathanasiou/Desktop/conditional_action_gen/teach/data/amass/amass_cleanup_seqs/BMLrub.json')
         req_dtypes = self.dtype.split('+')
         logger.info(f'The required datatypes are : {req_dtypes}')
+        if self.heuristic:
+            from sinc.info.joints import bp2ids
+            jts_pos = joblib.load(Path(datapath) / f'../jts_{split}.pkl')
+            key_pos = joblib.load(Path(datapath) / f'../keys_{split}.pkl')
+            vars_bps = {x:[] for x in bp2ids.keys()}
+            from sinc.info.joints import smplh_joints, smpl_bps
+            bp2ids = {
+                bp_name: [smplh_joints.index(j) for j in jts_names]
+                for bp_name, jts_names in smpl_bps.items()
+            }
+            loks = []
+            for k, mot_jts in jts_pos.items():
+                for bp, idxs in bp2ids.items():
+                    vars_bps[bp].append(mot_jts[:, idxs])
+                loks.append(k)
 
+            
         for i, sample in enumerator:
             # if sample['fname'] in discard:
             #     num_bad_bml += 1
@@ -210,6 +231,8 @@ class BABEL(Dataset):
             # elif self.dtype == 'spatial_pairs': possible_actions = all_actions['spatial_pairs']
             # else: raise NotImplementedError(f'The datatype {self.dtype} is not supported.')
             # GPT part
+            # if i == 500: break
+
             for dtype, extracted_actions in possible_actions.items():
 
                 for index, seg in enumerate(extracted_actions):
@@ -283,13 +306,21 @@ class BABEL(Dataset):
                         motion_data[keyid] = features
                     else:
                         motion_data[keyid] = joints
+
+
                     dtypes[keyid] = dtype
                     gpt_labels[keyid] = []
-
-                    for a_t in texts_data[keyid]:
-                        bp_list = text_list_to_bp(a_t, gpt_labels_full_sent)
-                        # bp_list = text_to_bp(a_t, gpt_labels_full_sent)
-                        gpt_labels[keyid].append(bp_list)
+                    if self.heuristic:
+                        if len(texts_data[keyid]) == 1:
+                            idx_of_mot = key_pos.index(keyid)
+                            gpt_labels[keyid].append(self.compute_heuristic(idx_of_mot,
+                                                                            vars_bps))
+                    else:
+                        
+                        for a_t in texts_data[keyid]:
+                            bp_list = text_list_to_bp(a_t, gpt_labels_full_sent)
+                            # bp_list = text_to_bp(a_t, gpt_labels_full_sent)
+                            gpt_labels[keyid].append(bp_list)
         if synthetic:
             # from a keyid, prepare what keyids is possible to be chosen
             from sinc.info.joints import get_compat_matrix
@@ -350,6 +381,18 @@ class BABEL(Dataset):
                 )
                 logger.info(f"Discard from BML: {num_bad_bml}")
                 logger.info(f"Discard not KIT: {num_not_kit}")
+        
+        
+                
+                # plt.figure()
+                # plt.hist(avg_vels, bins='fd', density=True)
+                # plt.savefig(f'/home/nathanasiou/Desktop/scratch/velhist_{bp}.png')
+        
+        # annot_path_fx = Path(datapath)/f'../deps/gpt/gpt3-labels_gt_100.json'
+        # from sinc.utils.text_constants import unique_texts_babel_train_val
+        # xx = {v[0]:gpt_labels[k][0] for k,v in texts_data.items() if v[0] in unique_texts_babel_train_val[:100]}
+        # # write_json(xx, '/home/nathanasiou/Desktop/conditional_action_gen/heur_gpt.json')
+        # import ipdb; ipdb.set_trace()
         self.motion_data = motion_data
         self.texts_data = texts_data
         self._split_index = list(motion_data.keys())
@@ -365,6 +408,9 @@ class BABEL(Dataset):
         #     ddict[k] = [v[0], v[1], durations[k]]
         # write_json(ddict,
         #            f'{get_original_cwd()}/deps/inference/labels_{split}_spatial.json')
+        if self.heuristic:
+            del jts_pos
+            del key_pos
 
         if split == 'test' or split == 'val' or mode == 'inference':
             # does not matter should be removed, just for code to not break
@@ -375,6 +421,44 @@ class BABEL(Dataset):
         else:
             self.nfeats = 135 #self[0]["datastruct"].features.shape[-1]
 
+    def compute_heuristic(self, idx, joints_pos):
+
+        # mot_stats = {x:[] for x in bp2ids.keys()}
+        # # from matplotlib import pyplot as plt
+        # for bp, motions in vars_bps.items():
+        #     avg_vels = []
+        #     for mo in motions:
+        #         velmo = mo[1:] - mo[:-1]
+        #         avg_vel = velmo.mean(1) # aggregrate parts
+        #         avg_vels += [torch.linalg.norm(avg_vel, dim=1).mean()] # power of vels per frame averaged
+        #     import ipdb; ipdb.set_trace()
+        #     max_vel = max(avg_vels)
+        #     min_vel = min(avg_vels)
+        #     mean_vel = sum(avg_vels) / len(avg_vels)
+        #     mot_stats[bp] = [max_vel, min_vel, mean_vel, avg_vels]
+        # for k, v in joints_pos.items():
+        # aggr_mo = {x:[] for x in joints_pos.keys()}
+        from sinc.info.joints import smpl_bps_ids 
+
+        avg_vels = {}
+        for bp, v in joints_pos.items():
+            mo = v[idx]
+            velmo = mo[1:] - mo[:-1]
+            avg_vel = velmo.mean(1) # aggregrate parts
+            avg_vels[bp]= torch.linalg.norm(avg_vel, dim=1).mean() # power of vels per frame averaged
+
+        velmaxi = max(avg_vels.values())
+        velmini = min(avg_vels.values())
+        bp_list = [0] * len(smpl_bps_ids)
+        
+        avg_vels_norm = {k: (v-velmini)/(velmaxi - velmini) for k, v in avg_vels.items() }
+        for bp, v in avg_vels_norm.items():
+            if v > 0.65:
+                bp_list[smpl_bps_ids[bp]] += 1
+
+        return bp_list
+
+    
     def _load_datastruct(self, keyid, frame_ix=None):
         features = self.motion_data[keyid][frame_ix]
         datastruct = self.transforms.Datastruct(features=features)
@@ -403,6 +487,7 @@ class BABEL(Dataset):
             if self.sample_dtype[keyid] in ['seg', 'seq', '', 'spatial_pairs']:
                 check_compat = self.synthetic and self.sample_dtype[keyid] in ['seg', 'seq'] and (self.compat_seqs[keyid] or self.random_synthetic)
                 if np.random.uniform() < proportion and check_compat:
+                    # GPT CASE
                     while isnan:
                         isnan = False
                         # check compatibility with synthetic
@@ -414,10 +499,10 @@ class BABEL(Dataset):
                                 keyid_p = np.random.choice(self.single_keyids)
                             else:
                                 keyid_p = np.random.choice(self.compat_seqs[keyid])
+
                         text_p = self._load_text(keyid_p)
                         feats = self.motion_data[keyid]
                         feats_p = self.motion_data[keyid_p]
-                        
                         # make sure trasnform is on the correct device 
                         # self.transforms.rots2rfeats = self.transforms.rots2rfeats.to(feats.device)
                         
@@ -479,7 +564,6 @@ class BABEL(Dataset):
                                    'datastruct_b': feats_p,
                                    'frames_ix': frame_ix,
                                    }
-                        
                 else:
                     num_frames = self._num_frames_in_sequence[keyid]
                     frame_ix = self.sampler(num_frames)

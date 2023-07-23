@@ -18,7 +18,8 @@ import spacy
 NLP_PROC = spacy.load("en_core_web_sm")
 
 class SINC(BaseModel):
-    def __init__(self, textencoder: DictConfig,
+    def __init__(self, 
+                 textencoder: DictConfig,
                  motionencoder: DictConfig,
                  motiondecoder: DictConfig,
                  losses: DictConfig,
@@ -28,6 +29,7 @@ class SINC(BaseModel):
                  vae: bool,
                  latent_dim: int,
                  motion_branch: bool,
+                 eval_model = None,
                  separate_latents: Optional[bool] = False,
                  nvids_to_save: Optional[int] = None,
                  teacher_forcing: Optional[bool] = False,
@@ -47,8 +49,10 @@ class SINC(BaseModel):
 
         for k, v in self.store_examples.items():
             self.store_examples[k] = {'ref': [], 'ref_features': [], 'keyids': []}
-
-        self.metrics = ComputeMetricsSinc()
+        self.temos_path = '/is/cluster/fast/nathanasiou/data/motion-language/sinc-checkpoints/temos_score/bs32'
+        self.eval_model = eval_model
+        # eval_model = self.load_temos()
+        self.metrics = ComputeMetricsSinc(eval_model)
 
         self.nvids_to_save = nvids_to_save
         # If we want to overide it at testing time
@@ -61,16 +65,41 @@ class SINC(BaseModel):
         self.latent_dim = latent_dim
         self.concat_text_word = concat_text_word
         self.single_text_desc = single_text_desc
-        
+                
         # Keep track of the losses
         self._losses = ModuleDict({split: instantiate(losses, vae=vae,
-                                                      separate_latents=separate_latents,
+                                                        separate_latents=separate_latents,
                                                       _recursive_=False)
                                    for split in ["losses_train", "losses_val"]})
         self.losses = {key: self._losses["losses_" + key] for key in ["train", "val"]}
 
         self.__post_init__()
 
+    # def load_temos(self):
+    #     from pathlib import Path
+
+    #     from omegaconf import OmegaConf
+
+    #     from hydra.utils import instantiate
+    #     temos_path = Path(self.temos_path)
+    #     temoscfg = OmegaConf.load(temos_path / ".hydra/config.yaml")
+    #     cfg = OmegaConf.merge(temoscfg, OmegaConf.load( / ".hydra/overrides.yaml")
+
+    #     # Overload it
+    #     # Instantiate all modules specified in the configs
+    #     temos_model = instantiate(temoscfg.model,
+    #                               nfeats=135,
+    #                               logger_name="none",
+    #                               nvids_to_save=None,
+    #                               _recursive_=False)
+
+    #     last_ckpt_path = temos_path / "checkpoints/last.ckpt"
+    #     # Load the last checkpoint
+    #     temos_model = temos_model.load_from_checkpoint(last_ckpt_path)
+    #     temos_model.eval()
+    #     return temos_model, temoscfg
+    
+    
     def gerund_augment(self, text_list):
         text_dur_gerund = []
         for x in text_list:
@@ -137,7 +166,6 @@ class SINC(BaseModel):
                                return_mask: bool = False, return_motion: Optional[str] = None,
                                gpt_parts: Optional[List] = None, 
                                conjuct_word: Optional[str]=None) -> List[Tensor]:
-
         if self.single_text_desc:
             texts = self.rule_based_concat(texts, conjuct_word)
 
@@ -363,12 +391,13 @@ class SINC(BaseModel):
                                            batch['bp-gpt'][idx][0],
                                            batch['bp-gpt'][idx][1],
                                            center=False)
+                
                 feats_to_train_idx = self.transforms.rots2rfeats(smpl_comb)
                 curlen = len(feats_to_train_idx)
             else:
-                feats_to_train_idx = batch['datastruct'][idx].detach().cpu()
-                curlen = len(batch['datastruct'][idx])
-            motion_lst.append(feats_to_train_idx)  
+                curlen = batch['length'][idx]
+                feats_to_train_idx = batch['datastruct'][idx, :curlen].detach().cpu()
+            motion_lst.append(feats_to_train_idx)
             lens_mot.append(curlen)
         mot_collated = collate_tensor_with_padding(motion_lst)
         mot_collated = self.transforms.Datastruct(features=mot_collated)
@@ -384,9 +413,9 @@ class SINC(BaseModel):
         # gpt_parts = batch['bp-gpt']
         # if self.hparams.synthetic:
         lens, motions_ds = self.transform_batch_to_mixed_synthetic(batch)
-        batch['datastruct_a']
-        batch['datastruct_b']
-        batch['datastruct']
+        del batch['datastruct_a']
+        del batch['datastruct_b']
+        del batch['datastruct']
         batch['datastruct'] = motions_ds.to(self.device)
         batch['length'] = lens
         
@@ -485,62 +514,64 @@ class SINC(BaseModel):
                                                        bp_list_ref=bp_list_ref,
                                                        bp_list_text=bp_list_text,
                                                        bp_list_motion=bp_list_motion)
-        
+
         if split == 'val':
-            self.metrics(gt_motion_feats.detach().joints,
-                         datastruct_from_text.detach().joints,
+            self.metrics(gt_motion_feats.detach(),
+                         datastruct_from_text.detach(),
                         #  datastruct_from_text.detach(),
                         #  gt_motion_feats.detach(), 
                          gt_lens)
-        # if batch_idx == 0:
-        #     nvids = self.hparams.nvids_to_save
-        #     if nvids is not None and nvids != 0:
-        #         if split in self.store_examples:
-        #             # del self.store_examples[split]
-        #             self.store_examples[split].clear()
+        if batch_idx == 0:
+            nvids = self.hparams.nvids_to_save
+            if nvids is not None and nvids != 0:
+                if split in self.store_examples:
+                    # del self.store_examples[split]
+                    self.store_examples[split].clear()
 
-        #         lengths_for_viz = gt_lens[:nvids]
-        #         keyids_for_viz = batch['keyid'][:nvids]
-        #         def prepare_pos(x):
-        #             x = x.detach().joints[:nvids]
-        #             x = x.cpu().numpy()
-        #             return remove_padding(x, lengths_for_viz)
-        #         def prepare_verts(x):
-        #             x = x.detach().vertices[:nvids]
-        #             x = x.cpu().to(dtype=torch.float32).numpy()
-        #             return remove_padding(x, lengths_for_viz)
-        #         def prepare_features(x, lens):
-        #             x = x.detach().features[:nvids]
-        #             x =  x.cpu()
-        #             x = remove_padding(x, lens)
-        #             x = collate_tensor_with_padding(x)
-        #             return x
-        #         # ['transforms', '_joints2jfeats', 'features', 'joints_', 'jfeats_']
-        #         #
-        #         # ['transforms', '_rots2rfeats', '_rots2joints', '_joints2jfeats',
-        #         # 'features', 'rots_', 'rfeats_', 'joints_', 'jfeats_']
+                lengths_for_viz = gt_lens[:nvids]
+                keyids_for_viz = batch['keyid'][:nvids]
+                def prepare_pos(x):
+                    x = x.detach().joints[:nvids]
+                    x = x.cpu().numpy()
+                    return remove_padding(x, lengths_for_viz)
+                def prepare_verts(x):
+                    x = x.detach().vertices[:nvids]
+                    x = x.cpu().to(dtype=torch.float32).numpy()
+                    return remove_padding(x, lengths_for_viz)
+                def prepare_features(x, lens):
+                    x = x.detach().features[:nvids]
+                    # x =  x.cpu()
+                    x = remove_padding(x, lens)
+                    x = collate_tensor_with_padding(x)
+                    return x
+                # ['transforms', '_joints2jfeats', 'features', 'joints_', 'jfeats_']
+                #
+                # ['transforms', '_rots2rfeats', '_rots2joints', '_joints2jfeats',
+                # 'features', 'rots_', 'rfeats_', 'joints_', 'jfeats_']
 
-        #         self.store_examples[split] = { "text": gt_texts[:nvids] }
-        #         # if 'vertices_' in output_features_M.keys():
-        #         #     # get SMPL features for viz
-        #         #     self.store_examples[split].update({
-        #         #         'ref': prepare_verts(input_motion_feats),
-        #         #         'ref_features': motion_features.detach(),
-        #         #         'keyids': keyids
-        #         #     })
-        #         # else:
-        #         self.store_examples[split].update({
-        #             'ref': prepare_verts(gt_motion_feats),
-        #             'ref_features': prepare_features(gt_motion_feats, lengths_for_viz),
-        #             'keyids': keyids_for_viz,
-        #             'lengths': lengths_for_viz
-        #         })
+                self.store_examples[split] = { "text": gt_texts[:nvids] }
+                # if 'vertices_' in output_features_M.keys():
+                #     # get SMPL features for viz
+                #     self.store_examples[split].update({
+                #         'ref': prepare_verts(input_motion_feats),
+                #         'ref_features': motion_features.detach(),
+                #         'keyids': keyids
+                #     })
+                # else:
+                self.store_examples[split].update({
+                    'ref': prepare_verts(gt_motion_feats),
+                    'ref_features': prepare_features(gt_motion_feats, lengths_for_viz),
+                    'keyids': keyids_for_viz,
+                    'lengths': lengths_for_viz
+                })
 
         # self.tracker[split].update(loss_dict)
         for k, v in loss_dict.items():
             loss_dict[k] = v.item()
+        
         del gt_motion_feats, datastruct_from_text, datastruct_from_motion
         del distributions_from_text, distribution_from_motion
         del latent_vectors_text, latent_from_motion
         del batch
+        torch.cuda.empty_cache()
         return total_loss, loss_dict

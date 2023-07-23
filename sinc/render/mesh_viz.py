@@ -1,7 +1,6 @@
 import numpy as np
 import torch
 import trimesh
-import pyrender
 import math
 import torch.nn.functional as F
 from sinc.utils.mesh_utils import MeshViewer
@@ -11,7 +10,6 @@ from hydra.utils import get_original_cwd
 from sinc.render.video import save_video_samples
 
 import os 
-import cv2
 from PIL import Image
 import subprocess
 import contextlib
@@ -19,6 +17,8 @@ import contextlib
 def visualize_meshes(vertices, pcd=None, multi_col=None, text=None,
                      multi_angle=False, h=720, w=720, bg_color='white',
                      save_path=None, fig_label=None, use_hydra_path=True):
+    import pyrender
+
     """[summary]
 
     Args:

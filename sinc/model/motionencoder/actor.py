@@ -58,7 +58,6 @@ class ActorAgnosticEncoder(pl.LightningModule):
         # Switch sequence and batch_size because the input of
         # Pytorch Transformer is [Sequence, Batch size, ...]
         # x = x.permute(1, 0, 2)  # now it is [nframes, bs, latent_dim]
-
         # Each batch has its own set of tokens
         if self.hparams.vae:
             mu_token = torch.tile(self.mu_token, (bs,)).reshape(bs, -1)

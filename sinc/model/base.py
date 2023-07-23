@@ -10,7 +10,8 @@ from pytorch_lightning.utilities.rank_zero import rank_zero_only
 class BaseModel(LightningModule):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.save_hyperparameters(logger=False)
+        self.save_hyperparameters(logger=False, 
+                                  ignore=['eval_model']) # ignore TEMOS score
 
         # Save visuals, one validation step per validation epoch
         self.store_examples = {"train": None,
@@ -102,6 +103,8 @@ class BaseModel(LightningModule):
         if split == "val":
             metrics_dict = self.metrics.compute()
             dico.update({f"Metrics/{metric}": value for metric, value in metrics_dict.items() if '_mean_' in metric})
+            if 'Temos_Score' in metrics_dict:
+                dico.update({f"Metrics/Temos_Score": metrics_dict['Temos_Score']})
         self.log_dict(dico, on_epoch=True, sync_dist=True)
         return 
 
@@ -116,15 +119,16 @@ class BaseModel(LightningModule):
 
     def configure_optimizers(self):
         optim_dict = {}
-        optimizer = torch.optim.AdamW(lr=3e-4, params=self.parameters())
-        # instantiate(self.hparams.optim, params=self.parameters())
+        optimizer = torch.optim.AdamW(lr=self.hparams.cfg.TRAIN.OPTIM.LR, params=self.parameters())
+        
         optim_dict['optimizer'] = optimizer
-
-        if self.hparams.lr_scheduler == 'reduceonplateau':
-            optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, threshold=1e-3)
-            optim_dict['monitor'] = 'losses/total/train'
-        elif self.hparams.lr_scheduler == 'steplr':
-            optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100)
+        # if self.hparams.NAME 
+        if self.hparams.cfg.NAME != 'Mld_VAE_actor':
+            if self.hparams.lr_scheduler == 'reduceonplateau':
+                optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, threshold=1e-3)
+                optim_dict['monitor'] = 'losses/total/train'
+            elif self.hparams.lr_scheduler == 'steplr':
+                optim_dict['lr_scheduler'] = torch.optim.lr_scheduler.StepLR(optimizer, step_size=200)
 
         return optim_dict 
 

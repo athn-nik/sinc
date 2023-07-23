@@ -44,6 +44,8 @@ This implementation:
   - For SINC method
   - For the baselines 
   - For the ablations done in the paper
+- Standalone script to compose different motions from AMASS __automatically__
+and create synthetic data from existing motions
 
 <h2 align="center">Environment & Basic Setup</h2>
 
@@ -135,7 +137,7 @@ You can do the same for your experiments:
 
 Then you can use this directory for your experiments.
 
-<div align="center"><h3>Step 2: Training</h3></center></div>
+<div align="center"><h3>Step 2 (a): Training</h3></center></div>
 
 To start training after activating your environment. Do:
 
@@ -151,6 +153,25 @@ model configuration file. You can check the `train.yaml` for the main configurat
 and this file will point you to the rest of the configs (eg. `model` refers to a config found in
 the folder `configs/model` etc.).
 
+<div align="center"><h3>Step 2 (b): Training MLD</h3></center></div>
+
+Prior to running this code for MLD please create and activate an environment according to their [repo](https://github.com/ChenFengYe/motion-latent-diffusion). Please do the `1. Conda Environment` and `2. Dependencies` out of the steps in their repo.
+
+```shell
+python train.py experiment=some_name run_id=mld-synth0.5-4gpu model=mld data.synthetic=true data.proportion_synthetic=0.5 data.dtype=seg+seq+spatial_pairs machine.batch_size=16 model.optim.lr=1e-4 logger=wandb sampler.max_len=150
+```
+
+</details>
+<h2 align="center"> BABEL Compositions </h2>
+
+<details>
+  <summary>Details</summary>
+  Given that you have downloaded and processed the data, you can create spatial compositions
+  from gropundtruth motions of BABEL using a standalone script:
+
+  ```shell
+  python compose_motions.py
+  ```
 </details>
 
 <h2 align="center"> Evaluation</h2>
@@ -172,6 +193,11 @@ You can calculate the TEMOS score using:
 
 ``` bash
 python sample_eval_latent.py folder=/is/cluster/fast/nathanasiou/logs/space/single-text-baselines/rs_only/babel-amass/ ckpt_name=699 set=small
+```
+
+or for model trained using MLD:
+```
+python mld_temos.py folder=/is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/mld-wo-synth/babel-amass ckpt_name=399 set=small
 ```
 </details>
 

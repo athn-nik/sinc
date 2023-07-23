@@ -2,7 +2,6 @@ import pyrender
 import trimesh
 import numpy as np
 import sys
-import cv2
 from sinc.utils.smpl_body_utils import colors
 
 
@@ -22,10 +21,10 @@ def get_checkerboard_plane(plane_mins, center=True):
     meshes = []
     radius = max((maxx - minx), (maxy - miny))
 
-    ground = trimesh.primitives.Box(
-        center=[(maxx-minx)/2,(maxx-minx)/2, 0.000001],
-        extents=[ maxx-minx, maxy-miny,  0.000002]
-    )
+    # ground = trimesh.primitives.Box(
+    #     center=[(maxx-minx)/2,(maxx-minx)/2, 0.000001],
+    #     extents=[ maxx-minx, maxy-miny,  0.000002]
+    # )
 
     # if center:
     #     c = c[0]+(pw/2)-(plane_width/2), c[1]+(pw/2)-(plane_width/2)
@@ -33,8 +32,9 @@ def get_checkerboard_plane(plane_mins, center=True):
     # trans = trimesh.transformations.scale_and_translate(scale=1, translate=[c[0], c[1], 0])
     # ground.apply_translation([c[0], c[1], 0])
     # ground.apply_transform(trimesh.transformations.rotation_matrix(np.rad2deg(-120), direction=[1,0,0]))
-    ground.visual.face_colors = gray
-    meshes.append(ground)
+    # ground.visual.face_colors = gray
+    
+    # meshes.append(ground)
 
     # G2
     ground2 = trimesh.primitives.Box(

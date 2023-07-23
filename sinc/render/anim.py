@@ -97,8 +97,8 @@ def render_animation(joints: np.ndarray, output: str = "notebook", title: str = 
     # Create spline line
     trajectory = joints[:, 0, [x, y]]
     avg_segment_length = np.mean(np.linalg.norm(np.diff(trajectory, axis=0), axis=1)) + 1e-3
-    draw_offset = int(25 / avg_segment_length)
-    spline_line, = ax.plot(*trajectory.T, zorder=10, color="white")
+    # draw_offset = int(25 / avg_segment_length)
+    # spline_line, = ax.plot(*trajectory.T, zorder=10, color="white")
 
     # Create a floor
     minx, miny, _ = joints.min(axis=(0, 1))
@@ -133,12 +133,12 @@ def render_animation(joints: np.ndarray, output: str = "notebook", title: str = 
                 lines[index][0].set_ydata(skeleton[chain, y])
                 lines[index][0].set_3d_properties(skeleton[chain, z])
 
-        left = max(frame - draw_offset, 0)
-        right = min(frame + draw_offset, trajectory.shape[0])
+        # left = max(frame - draw_offset, 0)
+        # right = min(frame + draw_offset, trajectory.shape[0])
 
-        spline_line.set_xdata(trajectory[left:right, 0])
-        spline_line.set_ydata(trajectory[left:right, 1])
-        spline_line.set_3d_properties(np.zeros_like(trajectory[left:right, 0]))
+        # spline_line.set_xdata(trajectory[left:right, 0])
+        # spline_line.set_ydata(trajectory[left:right, 1])
+        # spline_line.set_3d_properties(np.zeros_like(trajectory[left:right, 0]))
         initialized = True
 
     fig.tight_layout()

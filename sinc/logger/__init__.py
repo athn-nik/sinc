@@ -12,16 +12,18 @@ import wandb
 def instantiate_logger(cfg: DictConfig):
     conf = OmegaConf.to_container(cfg.logger, resolve=True)
     name = conf.pop('logger_name')
-
     if name is None:
         return False
     if name == 'wandb':
         project_save_dir = to_absolute_path(Path(cfg.path.working_dir) / conf['save_dir'])
+        Path(cfg.path.working_dir)
         Path(project_save_dir).mkdir(exist_ok=True)
         conf['dir'] = project_save_dir
         conf['config'] = cfg_to_flatten_config(cfg)
         # maybe do this for connection error in cluster, could be redundant
-        conf['settings'] = wandb.Settings(start_method="fork")
+        
+        # conf['settings'] = wandb.Settings(start_method="fork")
+        
         # conf['mode']= 'online' if not cfg.logger.offline else 'offline'
         conf['notes']= cfg.logger.notes if cfg.logger.notes is not None else None
         conf['tags'] = cfg.logger.tags.strip().split(',')\
