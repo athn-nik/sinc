@@ -258,7 +258,8 @@ def euler_angles_to_matrix(euler_angles, convention: str):
         if letter not in ("X", "Y", "Z"):
             raise ValueError(f"Invalid letter {letter} in convention string.")
     matrices = map(_axis_angle_rotation, convention, torch.unbind(euler_angles, -1))
-    return functools.reduce(torch.matmul, matrices)
+    euler_angles = functools.reduce(torch.matmul, matrices)
+    return torch.clamp(euler_angles, min=-1.0, max=1.0)
 
 
 def _angle_from_tan(

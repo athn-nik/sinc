@@ -29,13 +29,12 @@ class SINC(BaseModel):
                  vae: bool,
                  latent_dim: int,
                  motion_branch: bool,
-                 eval_model = None,
                  separate_latents: Optional[bool] = False,
                  nvids_to_save: Optional[int] = None,
                  teacher_forcing: Optional[bool] = False,
                  reduce_latents: Optional[str] = None,
                  concat_text_word: Optional[str] = None,
-                 single_text_desc: Optional[bool] = False,
+                 single_text_desc: Optional[bool] = True,
                  **kwargs):
 
         super().__init__()
@@ -46,12 +45,6 @@ class SINC(BaseModel):
         self.transforms = instantiate(transforms)
         self.Datastruct = self.transforms.Datastruct
         self.motiondecoder = instantiate(motiondecoder, nfeats=nfeats)
-
-        for k, v in self.store_examples.items():
-            self.store_examples[k] = {'ref': [], 'ref_features': [], 'keyids': []}
-        self.temos_path = '/is/cluster/fast/nathanasiou/data/motion-language/sinc-checkpoints/temos_score/bs32'
-        self.eval_model = eval_model
-        # eval_model = self.load_temos()
         self.metrics = ComputeMetricsSinc(eval_model)
 
         self.nvids_to_save = nvids_to_save
@@ -74,31 +67,6 @@ class SINC(BaseModel):
         self.losses = {key: self._losses["losses_" + key] for key in ["train", "val"]}
 
         self.__post_init__()
-
-    # def load_temos(self):
-    #     from pathlib import Path
-
-    #     from omegaconf import OmegaConf
-
-    #     from hydra.utils import instantiate
-    #     temos_path = Path(self.temos_path)
-    #     temoscfg = OmegaConf.load(temos_path / ".hydra/config.yaml")
-    #     cfg = OmegaConf.merge(temoscfg, OmegaConf.load( / ".hydra/overrides.yaml")
-
-    #     # Overload it
-    #     # Instantiate all modules specified in the configs
-    #     temos_model = instantiate(temoscfg.model,
-    #                               nfeats=135,
-    #                               logger_name="none",
-    #                               nvids_to_save=None,
-    #                               _recursive_=False)
-
-    #     last_ckpt_path = temos_path / "checkpoints/last.ckpt"
-    #     # Load the last checkpoint
-    #     temos_model = temos_model.load_from_checkpoint(last_ckpt_path)
-    #     temos_model.eval()
-    #     return temos_model, temoscfg
-    
     
     def gerund_augment(self, text_list):
         text_dur_gerund = []
@@ -518,52 +486,7 @@ class SINC(BaseModel):
         if split == 'val':
             self.metrics(gt_motion_feats.detach(),
                          datastruct_from_text.detach(),
-                        #  datastruct_from_text.detach(),
-                        #  gt_motion_feats.detach(), 
                          gt_lens)
-        if batch_idx == 0:
-            nvids = self.hparams.nvids_to_save
-            if nvids is not None and nvids != 0:
-                if split in self.store_examples:
-                    # del self.store_examples[split]
-                    self.store_examples[split].clear()
-
-                lengths_for_viz = gt_lens[:nvids]
-                keyids_for_viz = batch['keyid'][:nvids]
-                def prepare_pos(x):
-                    x = x.detach().joints[:nvids]
-                    x = x.cpu().numpy()
-                    return remove_padding(x, lengths_for_viz)
-                def prepare_verts(x):
-                    x = x.detach().vertices[:nvids]
-                    x = x.cpu().to(dtype=torch.float32).numpy()
-                    return remove_padding(x, lengths_for_viz)
-                def prepare_features(x, lens):
-                    x = x.detach().features[:nvids]
-                    # x =  x.cpu()
-                    x = remove_padding(x, lens)
-                    x = collate_tensor_with_padding(x)
-                    return x
-                # ['transforms', '_joints2jfeats', 'features', 'joints_', 'jfeats_']
-                #
-                # ['transforms', '_rots2rfeats', '_rots2joints', '_joints2jfeats',
-                # 'features', 'rots_', 'rfeats_', 'joints_', 'jfeats_']
-
-                self.store_examples[split] = { "text": gt_texts[:nvids] }
-                # if 'vertices_' in output_features_M.keys():
-                #     # get SMPL features for viz
-                #     self.store_examples[split].update({
-                #         'ref': prepare_verts(input_motion_feats),
-                #         'ref_features': motion_features.detach(),
-                #         'keyids': keyids
-                #     })
-                # else:
-                self.store_examples[split].update({
-                    'ref': prepare_verts(gt_motion_feats),
-                    'ref_features': prepare_features(gt_motion_feats, lengths_for_viz),
-                    'keyids': keyids_for_viz,
-                    'lengths': lengths_for_viz
-                })
 
         # self.tracker[split].update(loss_dict)
         for k, v in loss_dict.items():
