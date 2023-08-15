@@ -623,8 +623,8 @@ def rotation_6d_to_matrix(d6: torch.Tensor) -> torch.Tensor:
     b2 = a2 - (b1 * a2).sum(-1, keepdim=True) * b1
     b2 = F.normalize(b2, dim=-1)
     b3 = torch.cross(b1, b2, dim=-1)
-    return torch.stack((b1, b2, b3), dim=-2)
-
+    matrix = torch.stack((b1, b2, b3), dim=-2)
+    return torch.clamp(matrix, min=-1.0, max=1.0)
 
 def matrix_to_rotation_6d(matrix: torch.Tensor) -> torch.Tensor:
     """
