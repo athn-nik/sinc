@@ -1,7 +1,8 @@
 # Repo specific Ignores
-experiments
+#experiments
+#data
 .vscode
-/data
+#/data
 /outputs
 deps/*
 !deps/transforms/
