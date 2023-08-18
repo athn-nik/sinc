@@ -162,12 +162,12 @@ python train.py experiment=some_name run_id=mld-synth0.5-4gpu model=mld data.syn
 ```
 
 </details>
-<h2 align="center"> BABEL Compositions </h2>
+<h2 align="center"> AMASS Compositions </h2>
 
 <details>
   <summary>Details</summary>
   Given that you have downloaded and processed the data, you can create spatial compositions
-  from gropundtruth motions of BABEL using a standalone script:
+  from gropundtruth motions of BABEL subset from AMASS using a standalone script:
 
   ```shell
   python compose_motions.py
