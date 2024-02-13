@@ -6,6 +6,9 @@ import torch
 from aitviewer.headless import HeadlessRenderer
 
 def get_offscreen_renderer(path_tobody_models='data/body_models/'):
+    import os
+    os.system("Xvfb :12 -screen 1 640x480x24 &")
+    os.environ['DISPLAY'] = ":12"
     from aitviewer.configuration import CONFIG as AITVIEWER_CONFIG
     from aitviewer.headless import HeadlessRenderer
     AITVIEWER_CONFIG.update_conf({"playback_fps": 30,
@@ -27,6 +30,10 @@ def pack_to_render(rots, trans, pose_repr='6d'):
         body_pose = transform_body_pose(rots, f"{pose_repr}->aa")
     else:
         body_pose = rots
+
+    if body_pose.shape[-1] < 9:
+        body_pose = body_pose.flatten(1)
+
     if trans is None:
         trans = torch.zeros((rots.shape[0], rots.shape[1], 3),
                              device=rots.device)
@@ -51,7 +58,6 @@ def render_motion(renderer: HeadlessRenderer, datum: dict,
     from aitviewer.headless import HeadlessRenderer
     from aitviewer.renderables.smpl import SMPLSequence
     import trimesh
-    from src.render.video import put_text
     if isinstance(datum, dict): datum = [datum]
     if not isinstance(color, list): 
         colors = [color] 
@@ -100,8 +106,8 @@ def render_motion(renderer: HeadlessRenderer, datum: dict,
         renderer.scene.add(smpl_template)
     # camera follows smpl sequence
     # FIX CAMERA
-    from src.tools.transforms3d import transform_body_pose
-    from src.tools.transforms3d import get_z_rot
+    from sinc.tools.transform3d import get_z_rot, transform_body_pose
+
     R_z = get_z_rot(global_orient[0], in_format='aa')
     heading = -R_z[:, 1]
     xy_facing = body_transl[0] + heading*2.5
