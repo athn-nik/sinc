@@ -112,7 +112,7 @@ def write_json(data, p):
     with open(p, 'w') as fp:
         json.dump(data, fp, indent=2)
 
-# Load npys
+# Load npysœ
 def loadnpys(path: str):
     import glob
     dict_of_npys = {}

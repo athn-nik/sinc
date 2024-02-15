@@ -833,7 +833,7 @@ def _canonica_facefront(rotations, translation):
     return rots_motion_aa_can, translation_can
 def pipe_to_json_structured(vid_ids_a, vid_ids_b, stamps_a, stamps_b,
                             path_to_save):
-    template_fp = '/is/cluster/fast/nathanasiou/data/bodilex/hml3d_v5_pos_canonica_fixed/perfile/VIDID'
+    template_fp = 'fast/nathanasiou/VIDID'
     # vid_ids_a, vid_ids_b, stamps_a, stamps_b = get_vids_to_label()
     # vid_ids_a = ['10341']
     # vid_ids_b = ['10486']
@@ -907,7 +907,10 @@ for bs in tqdm(dataloader):
         locombs.append(bs['keyid'][jj])
         keyid_comb = bs['keyid'][jj]
         key_a, key_b = keyid_comb.split('+')
-
+        # wave and run
+        # wave | run --> 4 combinations
+        # a, comb
+        
         dict_to_save[f'{keyid}_0'] = {'motion_source': {'rots':rots_a_can,
                                                         'trans': trans_a_can},
                                       'motion_target': {'rots': rots_comb_can,
@@ -971,7 +974,7 @@ for bs in tqdm(dataloader):
         
 
 # remove dups get indices
-path_to_save = './data/motion-editing-project/sinc_synth/'
+path_to_save = 'data/motion-editing-project/sinc_synth/'
 
 unique_dict1 = {item: index for index, item in enumerate(vids_1)}
 indices1 = list(unique_dict1.values())
