@@ -45,7 +45,7 @@ class SINC(BaseModel):
         self.transforms = instantiate(transforms)
         self.Datastruct = self.transforms.Datastruct
         self.motiondecoder = instantiate(motiondecoder, nfeats=nfeats)
-        self.metrics = ComputeMetricsSinc(eval_model)
+        # self.metrics = ComputeMetricsSinc(eval_model)
 
         self.nvids_to_save = nvids_to_save
         # If we want to overide it at testing time

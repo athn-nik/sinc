@@ -119,6 +119,7 @@ class BaseModel(LightningModule):
 
     def configure_optimizers(self):
         optim_dict = {}
+        import ipdb; ipdb.set_trace()
         optimizer = torch.optim.AdamW(lr=self.hparams.cfg.TRAIN.OPTIM.LR, params=self.parameters())
         
         optim_dict['optimizer'] = optimizer
