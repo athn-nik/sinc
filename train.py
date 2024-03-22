@@ -118,7 +118,7 @@ def train(cfg: DictConfig, ckpt_ft: Optional[str] = None) -> None:
 
         from sinc.model.mld import MLD
         model = MLD(cfg_for_mld, cfg.transforms, cfg.path)
-        state_dict = torch.load('/is/cluster/fast/nathanasiou/logs/sinc/sinc-arxiv/temos-bs64x1-scheduler/babel-amass/checkpoints/latest-epoch=599.ckpt', map_location='cpu')
+        state_dict = torch.load('data/vae-pretrained/latest-epoch=599.ckpt', map_location='cpu')
         # extract encoder/decoder
         from collections import OrderedDict
         decoder_dict = OrderedDict()
