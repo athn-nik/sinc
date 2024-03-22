@@ -248,7 +248,7 @@ class BABEL(Dataset):
                     dtypes[keyid] = dtype
         # motion_data_rots = {k:v for k,v in motion_data_rots.items() if v.shape[0] > 60}
         # filtered_keys_list = list(motion_data_rots.keys())
-        
+
         stand_variants = ['stand up', 'stand in place',
                           'stand inplace',
                           'stand at rest', 'stand still',
@@ -294,7 +294,7 @@ class BABEL(Dataset):
                       'shift weight', 'walk forward feet brace and push',
                       'stand with feet shoulder width apart',
                       'jump rope with alternate foot steps', 
-                      'alternate hands hold rail'
+                      'alternate hands hold rail',
                       'jump rope with both feet same time','step over jump rope',
                       'take give', 'take back','drop it back', 
                       'return object', 'put things back', 'sort things on air',
@@ -307,7 +307,10 @@ class BABEL(Dataset):
                       'jump jack', 'inverse jump jack', 'jump jacks',
                       'untangle self from jump rope',
                       'jump over an obstacle', 'elephant trunk swing', 
-                      'turn crank',
+                      'turn crank', 'change it', 'bend toe touch',
+                      'step off', 'look at the floor',
+                      'duck walk', 'toe touch',
+                      'back flip', 'hold nose',
                       'look at clock', 'look around nervously', 'touch eye',
                       'check time', 'sit and write', 
                       'turn walk back while bend elbows inward',
@@ -324,6 +327,7 @@ class BABEL(Dataset):
         texts_data ={k:v for k,v in texts_data.items() if 'while' not in v[0]}
         texts_data ={k:v for k,v in texts_data.items() if 'look up' not in v[0]}
         texts_data ={k:v for k,v in texts_data.items() if 'posture' not in v[0]}
+        texts_data ={k:v for k,v in texts_data.items() if 'touch screen' not in v[0]}
 
         # dif_walks = []
         # for k, v in texts_data.items():
@@ -402,7 +406,7 @@ class BABEL(Dataset):
         motion_data_rots = {k:v for k,v in motion_data_rots.items() if k in keys_to_keep}
         motion_data_trans = {k:v for k,v in motion_data_trans.items() if k in keys_to_keep}
         gpt_labels = {k:v for k,v in gpt_labels.items() if k in keys_to_keep}
-        ######
+        ###### synth_seg-1644-0+seg-3276-0
         if synthetic:
             # from a keyid, prepare what keyids is possible to be chosen
             from sinc.info.joints import get_compat_matrix
@@ -427,14 +431,29 @@ class BABEL(Dataset):
         sorted_tuples_wo_dups = list(set(sorted_tuples))
         # flattened_list = list(itertools.chain(*sorted_tuples_wo_dups))
         # for k, v 
+
         ########################################################################
         from sentence_transformers import SentenceTransformer, util
         model = SentenceTransformer("all-MiniLM-L6-v2")
         # Two lists of sentences
         # Compute embedding for both lists
-        texts_combs  = []
+        all_texts_comb = []
         for k in sorted_tuples_wo_dups:
-            texts_combs.append(f'{texts_data[k[0]][0]} while {texts_data[k[1]][0]}')
+            all_texts_comb.append( (
+                                 texts_data[k[0]][0],
+                                 texts_data[k[1]][0]
+                                 )
+                                )
+        texts_combs = rule_based_concat(all_texts_comb, 
+                                        conj_word='while')
+        texts_combs = [ txt_c[0] for txt_c in texts_combs ]
+        # for k in sorted_tuples_wo_dups:
+        #     text_comb_rand_conj = rule_based_concat([ (
+        #                          texts_data[k[0]][0],
+        #                          texts_data[k[1]][0]
+        #                          ) 
+        #                       ])
+        #     texts_combs.append(f'{text_comb_rand_conj[0][0]}')
         # texts_combs = list(set(texts_combs))
         
         ### text combinations
@@ -475,6 +494,7 @@ class BABEL(Dataset):
 
         keyids_comb = []
         for el in sorted_tuples_wo_dups:
+            # if el[0] == "seq-6558-0" or el[1] == "seq-6558-0":
             rots1.append(motion_data_rots[el[0]])
             rots2.append(motion_data_rots[el[1]])
             trans1.append(motion_data_trans[el[0]])
@@ -482,13 +502,14 @@ class BABEL(Dataset):
             gpt_lbs.append([gpt_labels[el[0]][0], gpt_labels[el[1]][0]])
             keyids_comb.append(f'{el[0]}+{el[1]}')
 
+        # import ipdb; ipdb.set_trace()
 
         comb_rots, comb_trans, _ = transform_batch_to_mixed_synthetic_ds(
                                                                     rots_1=rots1, 
                                                                     rots_2=rots2,
                                                                     trans_1=trans1,
                                                                     trans_2=trans2,
-                                                                    gpt_labels=gpt_lbs)
+                                                                    gpt_labels_batch=gpt_lbs)
         keyids1, keyids2 = zip(*sorted_tuples_wo_dups)
 
         rots1 = dict(zip(keyids1, rots1))
@@ -498,7 +519,7 @@ class BABEL(Dataset):
         comb_rots = dict(zip(keyids_comb, comb_rots))
         comb_trans = dict(zip(keyids_comb, comb_trans))
         texts_data = dict(zip(keyids_comb, texts_combs))
-        
+
         single_rots = rots1.copy()
         single_rots.update(rots2)
         single_trans = trans1.copy()
@@ -564,7 +585,7 @@ class BABEL(Dataset):
                     'trans_a': trans_a,
                     'rots_b': rots_b,
                     'trans_b': trans_b,
-                    }
+                  }
         return element
 
 
@@ -674,41 +695,15 @@ def gpt_compose(rots1, trans1, rots2, trans2, bp1, bp2,
 
     return frank_rots, frank_trans
 
-def transform_batch_to_mixed_synthetic(batch):
-    rots_lst = []
-    trans_lst = []
-    lens_lst = []
-    for idx, x in enumerate(batch['rots_a']):
-        if 'synth' in batch['keyid'][idx]:
-            lena = batch['length'][idx][0]
-            lenb = batch['length'][idx][1]
-            rots_a = batch['rots_a'][idx][:lena]
-            rots_b = batch['rots_b'][idx][:lenb]
-            trans_a = batch['trans_a'][idx][:lena]
-            trans_b = batch['trans_b'][idx][:lenb]
-            rots_comb, trans_comb = gpt_compose(rots_a, trans_a,
-                                                rots_b, trans_b, 
-                                                batch['bp-gpt'][idx][0],
-                                                batch['bp-gpt'][idx][1],
-                                                center=False)
-        else:
-            rots_comb = batch['rots_a'][idx]
-            trans_comb = batch['trans_a'][idx]
-        curlen = len(rots_comb) 
-
-        rots_lst.append(rots_comb)
-        trans_lst.append(trans_comb)
-        lens_lst.append(curlen)
-    return rots_lst, trans_lst, lens_lst
-
 
 def transform_batch_to_mixed_synthetic_ds(rots_1, rots_2, trans_1, trans_2,
-                                          gpt_labels):
+                                          gpt_labels_batch):
     rots_lst = []
     trans_lst = []
     lens_lst = []
     assert len(rots_1) == len(rots_2)
     nofels = len(rots_1)
+    # import ipdb; ipdb.set_trace()
     for idx in range(nofels):
         lena = len(rots_1[idx])
         lenb = len(rots_2[idx])
@@ -718,9 +713,9 @@ def transform_batch_to_mixed_synthetic_ds(rots_1, rots_2, trans_1, trans_2,
         trans_b = trans_2[idx]
         rots_comb, trans_comb = gpt_compose(rots_a, trans_a,
                                             rots_b, trans_b, 
-                                            gpt_labels[idx][0],
-                                            gpt_labels[idx][1],
-                                            center=False)
+                                            gpt_labels_batch[idx][0],
+                                            gpt_labels_batch[idx][1],
+                                            center=True)
         curlen = len(rots_comb) 
         rots_lst.append(rots_comb)
         trans_lst.append(trans_comb)
@@ -760,8 +755,6 @@ def rule_based_concat(texts, conj_word=None):
                     for x in texts_sim ]
     texts_sim = [ x.replace('<and>', 'and') for x in texts_sim ]
 
-    texts_com = [", ".join(x) for x in texts]
-
     texts_and_same = [ (f" <and> ".join(x),) for x in texts]
     texts_and_same = [ f"{x[0]} at the same time"\
         if '<and>' in x[0] else x[0] for x in texts_and_same ]
@@ -771,11 +764,15 @@ def rule_based_concat(texts, conj_word=None):
     texts_dur = gerund_augment(texts_dur)        
     
     text_aug_batch = []
-    conj_word = 'same_time'
-    for augm_text_el in zip(texts_wl, texts_sim,
-                                            texts_com, texts_and_same,
-                                            texts_dur):
-        text_aug_batch.append((augm_text_el[randint(0, 4)],))
+    conj_word = 'while'
+    for augm_text_el in zip(texts_wl, texts_sim, texts_and_same,
+                            texts_dur):
+        if conj_word is None:
+
+            text_aug_batch.append((augm_text_el[randint(0, 3)],))
+        else:
+            augm_idx = conj_word_dict[conj_word]
+            text_aug_batch.append((augm_text_el[augm_idx],))
 
     assert len(text_aug_batch) == len(texts)
     assert sum([len(x) for x in text_aug_batch]) == len(texts)
@@ -793,20 +790,11 @@ dataset = BABEL(datapath='data/babel/babel-smplh-30fps-male',
 from torch.utils.data import DataLoader
 
 dataloader = DataLoader(dataset, batch_size=32,
-                        shuffle=True, num_workers=4,
+                        shuffle=False, num_workers=4,
                         collate_fn=collate_rots_and_text)
-dict_to_save = {}
+database_to_save = {}
 cnt = 0
 
-stand_variants = ['stand up', 'stand in place',
-                  'stand inplace',
-                  'stand at rest', 'stand still',
-                  'stand in t-pose', 't-pose', 'tpose',
-                  'stand pose', 'stand forward', 'stand with chin up',
-                  'look up', 'stand with arms down', 'stand at attention',
-                  'stand with arms by sides', 'stand like a lad',
-                  'stand in place while jump', 'just stand',
-                  'stand upright', 'stand wait for some one']
 
 locombs = []
 
@@ -831,9 +819,10 @@ def _canonica_facefront(rotations, translation):
     rots_motion_aa_can = rearrange(rots_motion_aa_can, 'F J d -> F (J d)',
                                     d=3)
     return rots_motion_aa_can, translation_can
+
 def pipe_to_json_structured(vid_ids_a, vid_ids_b, stamps_a, stamps_b,
                             path_to_save):
-    template_fp = 'fast/nathanasiou/VIDID'
+    template_fp = '/fast/nathanasiou/VIDID'
     # vid_ids_a, vid_ids_b, stamps_a, stamps_b = get_vids_to_label()
     # vid_ids_a = ['10341']
     # vid_ids_b = ['10486']
@@ -843,12 +832,10 @@ def pipe_to_json_structured(vid_ids_a, vid_ids_b, stamps_a, stamps_b,
     stamps_b = [{'begin': s, 'end': e} for (s, e) in stamps_b]
 
 
-    final_vids = {
-                    'motion_a': [template_fp.replace('VIDID', x) for x in vid_ids_a],
-                    'motion_b': [template_fp.replace('VIDID', x) for x in vid_ids_b],
-                    'stamps_a': stamps_a,
-                    'stamps_b': stamps_b,
-                    }
+    final_vids = {'motion_a': [template_fp.replace('VIDID', x) for x in vid_ids_a],
+                  'motion_b': [template_fp.replace('VIDID', x) for x in vid_ids_b],
+                  'stamps_a': stamps_a,
+                  'stamps_b': stamps_b}
     print('The json file that must be given to the next script is stored in:', f'{path_to_save}')
     write_json(final_vids, f'{path_to_save}')
 
@@ -858,7 +845,7 @@ dict_to_save = {'motion_a': [],
                 'stamps_b':[]
                 }
 
-r = get_offscreen_renderer('./data/motion-editing-project/body_models')
+# r = get_offscreen_renderer('./data/motion-editing-project/body_models')
 keys1 = []
 keys2 = []
 vids_1 = []
@@ -880,7 +867,25 @@ for bs in tqdm(dataloader):
 
     for jj in range(len(bs['keyid'])):
         lenmo = bs['length'][jj][0]
-
+        c1 = 'walk' in bs['text'][jj] and 'turn' in bs['text'][jj] 
+        c2 = 'stroll' in bs['text'][jj] and 'turn' in bs['text'][jj] 
+        c3 = 'step' in bs['text'][jj] and 'turn' in bs['text'][jj] 
+        c4 = 'run' in bs['text'][jj] and 'turn' in bs['text'][jj] 
+        c5 = 'jog' in bs['text'][jj] and 'turn' in bs['text'][jj] 
+        cur_text_comb_while = bs['text'][jj]
+        c6 = 'jump' in cur_text_comb_while or 'incline' in cur_text_comb_while or 'climb' in cur_text_comb_while or 'hop' in cur_text_comb_while or 'spin' in cur_text_comb_while
+        c8= 'place' and 'walk' in cur_text_comb_while
+        c9 = 'place' and 'jog' in cur_text_comb_while
+        c10 = 'place' and 'run' in cur_text_comb_while
+        c11 = 'place' and 'stroll' in cur_text_comb_while
+        c12 = 'put down' and 'walk' in cur_text_comb_while
+        c13 = 'lay' in cur_text_comb_while or 'lie down' in cur_text_comb_while
+        c14 = 'bend down' and 'walk' in cur_text_comb_while
+        c15 = 'bend down' and 'jog' in cur_text_comb_while
+        c16 = 'bend down' and 'run' in cur_text_comb_while
+        meet_condition = c1 or c2 or c3 or c4 or c5 or c6 or c8 or c9 or c10 or c11 or c12 or c13 or c14 or c15 or c16
+        if meet_condition:
+            continue
         rots_a = matrix_to_axis_angle(bs['rots_a'][jj][:lenmo])
         rots_b = matrix_to_axis_angle(bs['rots_b'][jj][:lenmo])
         rots_comb = matrix_to_axis_angle(bs['rots'][jj][:lenmo])
@@ -893,6 +898,13 @@ for bs in tqdm(dataloader):
         rots_b_can, trans_b_can = _canonica_facefront(rots_b, trans_b)
         rots_comb_can, trans_comb_can = _canonica_facefront(rots_comb,
                                                             trans_comb)
+        cands = ["synth_seg-1644-0+seg-3276-0",
+                 "synth_seq-146-0+seq-4257-0"]
+        if bs['keyid'][jj] in cands:
+            x = 1
+        # 
+        # "synth_seq-146-0+seq-4257-0"
+
         # ii = 0
         # for mot in [[rots_a_can, trans_a_can],
         #             [rots_b_can, trans_b_can],
@@ -910,12 +922,15 @@ for bs in tqdm(dataloader):
         # wave and run
         # wave | run --> 4 combinations
         # a, comb
-        
-        dict_to_save[f'{keyid}_0'] = {'motion_source': {'rots':rots_a_can,
-                                                        'trans': trans_a_can},
+        database_to_save[f'{keyid}_0'] = {'motion_source': {'rots':rots_a_can,
+                                                        'trans': trans_a_can,
+                                                        'babel_key': key_a,
+                                                        'babel_text': text_a[jj]},
                                       'motion_target': {'rots': rots_comb_can,
-                                                        'trans': trans_comb_can},
-                                      'text': text_b}
+                                                        'trans': trans_comb_can,
+                                                        'babel_key': keyid_comb,
+                                                        'babel_text': bs['text'][jj]},
+                                      'text': text_b[jj]}
         vids_1.append(key_a)
         vids_1_mot.append({'rots':rots_a_can, 
                            'trans':trans_a_can})
@@ -924,12 +939,15 @@ for bs in tqdm(dataloader):
                            'trans':trans_comb_can})
         stamps_1.append((0, len(rots_a_can)))
         stamps_2.append((0, len(rots_comb_can)))
-
-        dict_to_save[f'{keyid}_1'] = {'motion_source': {'rots':rots_b_can,
-                                                        'trans': trans_b_can},
+        database_to_save[f'{keyid}_1'] = {'motion_source': {'rots':rots_b_can,
+                                                        'trans': trans_b_can,
+                                                        'babel_key': key_b,
+                                                        'babel_text': text_b[jj]},
                                       'motion_target': {'rots': rots_comb_can,
-                                                        'trans': trans_comb_can},
-                                      'text': text_a}
+                                                        'trans': trans_comb_can,
+                                                        'babel_key': keyid_comb,
+                                                        'babel_text': bs['text'][jj]},
+                                      'text': text_a[jj]}
         vids_1.append(key_b)
         vids_1_mot.append({'rots':rots_b_can, 
                            'trans':trans_b_can})
@@ -938,15 +956,19 @@ for bs in tqdm(dataloader):
                            'trans':trans_comb_can})
         stamps_1.append((0, len(rots_b_can)))
         stamps_2.append((0, len(rots_comb_can)))
-        dict_to_save[f'{keyid}_2'] = {'motion_source': {
+        database_to_save[f'{keyid}_2'] = {'motion_source': {
                                                 'rots':rots_comb_can,
-                                                'trans': trans_comb_can
+                                                'trans': trans_comb_can,
+                                                'babel_key': keyid_comb,
+                                                'babel_text': bs['text'][jj]
                                                 },
                                       'motion_target': {
                                                 'rots': rots_a_can,
-                                                'trans': trans_a_can
+                                                'trans': trans_a_can,
+                                                'babel_key': key_a,
+                                                'babel_text': text_a[jj]
                                                 },
-                                      'text': f"don't {text_b}"}
+                                      'text': f"don't {text_b[jj]}"}
         vids_1.append(keyid_comb)
         vids_1_mot.append({'rots':rots_comb_can, 
                            'trans':trans_comb_can})
@@ -956,11 +978,15 @@ for bs in tqdm(dataloader):
         stamps_1.append((0, len(rots_comb_can)))
         stamps_2.append((0, len(rots_a_can)))
 
-        dict_to_save[f'{keyid}_3'] = {'motion_source': {'rots':rots_comb_can,
-                                                'trans': trans_comb_can},
+        database_to_save[f'{keyid}_3'] = {'motion_source': {'rots':rots_comb_can,
+                                                'trans': trans_comb_can,
+                                                'babel_key': keyid_comb,
+                                                'babel_text': bs['text'][jj]},
                                       'motion_target': {'rots': rots_b_can,
-                                                'trans': trans_b_can},
-                                      'text': f"don't {text_a}"}
+                                                'trans': trans_b_can,
+                                                'babel_key': key_b,
+                                                'babel_text': text_b[jj]},
+                                      'text': f"don't {text_a[jj]}"}
         vids_1.append(keyid_comb)
         vids_1_mot.append({'rots':rots_comb_can, 
                            'trans':trans_comb_can})
@@ -970,35 +996,38 @@ for bs in tqdm(dataloader):
         stamps_1.append((0, len(rots_comb_can)))
         stamps_2.append((0, len(rots_b_can)))
 
-        cnt += 1 
-        
+        cnt += 1
+if False:
+    # remove dups get indices
+    path_to_save = 'data/motion-editing-project/sinc_synth/pkls'
 
-# remove dups get indices
-path_to_save = 'data/motion-editing-project/sinc_synth/'
+    # unique_dict1 = {item: index for index, item in enumerate(vids_1)}
+    # indices1 = list(unique_dict1.values())
+    # vids_1 = [vids_1[i] for i in indices1]
+    # vids_1_mot = [vids_1_mot[i] for i in indices1]
+    vids_1 = [f'{path_to_save}/{x}' for x in vids_1]
 
-unique_dict1 = {item: index for index, item in enumerate(vids_1)}
-indices1 = list(unique_dict1.values())
-vids_1 = [vids_1[i] for i in indices1]
-vids_1_mot = [vids_1_mot[i] for i in indices1]
-vids_1 = [f'{path_to_save}/{x}' for x in vids_1]
+    # unique_dict2 = {item: index for index, item in enumerate(vids_2)}
+    # indices2 = list(unique_dict2.values())
+    # vids_2 = [vids_2[i] for i in indices2]
+    # vids_2_mot = [vids_2_mot[i] for i in indices2]
+    vids_2 = [f'{path_to_save}/{x}' for x in vids_2]
+    import os
+    for j, motion_to_save in enumerate(tqdm(vids_1_mot)):
+        if not os.path.isfile(f'{vids_1[j]}.pth.tar'):
+            joblib.dump(motion_to_save, f'{vids_1[j]}.pth.tar')
 
-unique_dict2 = {item: index for index, item in enumerate(vids_2)}
-indices2 = list(unique_dict2.values())
-vids_2 = [vids_2[i] for i in indices2]
-vids_2_mot = [vids_2_mot[i] for i in indices2]
-vids_2 = [f'{path_to_save}/{x}' for x in vids_2]
+    for j, motion_to_save in enumerate(tqdm(vids_2_mot)):
+        if not os.path.isfile(f'{vids_2[j]}.pth.tar'):
+            joblib.dump(motion_to_save, f'{vids_2[j]}.pth.tar')
 
-for j, motion_to_save in enumerate(tqdm(vids_1_mot)):
-    joblib.dump(motion_to_save, f'{vids_1[j]}.pth.tar')
-
-for j, motion_to_save in enumerate(tqdm(vids_2_mot)):
-    joblib.dump(motion_to_save, f'{vids_2[j]}.pth.tar')
-
-pipe_to_json_structured(vids_1, vids_2, stamps_1, stamps_2,
-                        path_to_save=path_to_save+'synthetic_selected.json')
-
-joblib.dump(dict_to_save, 'data/motion-editing-project/sinc_synth_edits_min.pth.tar')
+    pipe_to_json_structured(vids_1, vids_2, 
+                            stamps_1, stamps_2,
+                            path_to_save='data/motion-editing-project/sinc_synth/synthetic_selected.json')
+x=1
+joblib.dump(database_to_save, 
+            'data/motion-editing-project/sinc_synth/sinc_synth_edits_v1.pth.tar')
 import json
-print(len(dict_to_save))
-with open('data/motion-editing-project/sinc_synth_keys_used.json', 'w') as f:
+print(len(database_to_save))
+with open('data/motion-editing-project/sinc_synth/sinc_synth_keys_used.json', 'w') as f:
     json.dump(locombs, f)
