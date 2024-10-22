@@ -85,6 +85,8 @@ You can do something equivalent with `conda` as well.
 
 <h2 align="center">Data & Training</h2>
 
+### ‼️⚠️ You can directly download the data from [this link](https://drive.google.com/drive/folders/1gKwLYP8TrbyY1YjsKz1A04s-rCwM9CfX?usp=sharing) and use them!
+
  <details>
   <summary>Details</summary>
 
